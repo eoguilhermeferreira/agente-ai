@@ -1,0 +1,160 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(ADMIN)
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Company {
+  id                String             @id @default(uuid())
+  name              String
+  slug              String             @unique
+  email             String
+  phone             String?
+  address           String?
+  logo              String?
+  plan              Plan               @default(STARTER)
+  isActive          Boolean            @default(true)
+  users             User[]
+  whatsappInstances WhatsappInstance[]
+  conversations     Conversation[]
+  settings          Settings?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@map("companies")
+}
+
+model WhatsappInstance {
+  id            String         @id @default(uuid())
+  instanceName  String
+  instanceKey   String?
+  status        InstanceStatus @default(DISCONNECTED)
+  qrCode        String?        @db.Text
+  webhookUrl    String?
+  companyId     String
+  company       Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  conversations Conversation[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@map("whatsapp_instances")
+}
+
+model Conversation {
+  id               String           @id @default(uuid())
+  remoteJid        String
+  clientName       String?
+  clientPhone      String
+  lastMessage      String?          @db.Text
+  lastMessageAt    DateTime?
+  unreadCount      Int              @default(0)
+  status           ConvStatus       @default(OPEN)
+  aiEnabled        Boolean          @default(true)
+  companyId        String
+  company          Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  instanceId       String
+  instance         WhatsappInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  messages         Message[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@unique([remoteJid, instanceId])
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  content        String       @db.Text
+  fromMe         Boolean      @default(false)
+  messageId      String?
+  type           MessageType  @default(TEXT)
+  status         MsgStatus    @default(SENT)
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@map("messages")
+}
+
+model Settings {
+  id                  String   @id @default(uuid())
+  companyId           String   @unique
+  company             Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  openaiKey           String?
+  openaiModel         String   @default("gpt-4o-mini")
+  aiEnabled           Boolean  @default(true)
+  autoReply           Boolean  @default(true)
+  responseDelay       Int      @default(2)
+  businessName        String?
+  businessHours       String?
+  businessAddress     String?
+  businessPhone       String?
+  systemPrompt        String?  @db.Text
+  products            String?  @db.Text
+  faq                 String?  @db.Text
+  aiRules             String?  @db.Text
+  evolutionApiUrl     String?
+  evolutionApiKey     String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("settings")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  AGENT
+}
+
+enum Plan {
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum InstanceStatus {
+  CONNECTED
+  DISCONNECTED
+  CONNECTING
+  QR_CODE
+}
+
+enum ConvStatus {
+  OPEN
+  CLOSED
+  PENDING
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  AUDIO
+  VIDEO
+  DOCUMENT
+  STICKER
+}
+
+enum MsgStatus {
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
