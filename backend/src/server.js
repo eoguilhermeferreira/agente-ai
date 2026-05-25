@@ -16,6 +16,7 @@ const webhookRoutes = require('./routes/webhook');
 const dashboardRoutes = require('./routes/dashboard');
 
 const app = express();
+app.set('trust proxy', 1);
 const server = http.createServer(app);
 
 const io = new Server(server, {
