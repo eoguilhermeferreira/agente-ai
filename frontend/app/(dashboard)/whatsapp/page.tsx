@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
-import { QRCodeCanvas } from 'qrcode.react';
 
 type InstanceStatus = 'CONNECTED' | 'DISCONNECTED' | 'CONNECTING' | 'QR_CODE';
 
@@ -172,10 +171,11 @@ export default function WhatsAppPage() {
               <p className="text-sm text-gray-400">Escaneie o QR Code com seu WhatsApp</p>
               <div className="p-5 bg-white rounded-2xl shadow-xl">
                 {qrCode ? (
-                  <QRCodeCanvas
-                    value={qrCode.startsWith('data:') ? qrCode : `data:image/png;base64,${qrCode}`}
-                    size={220}
-                    level="M"
+                  <img
+                    src={qrCode.startsWith('data:') ? qrCode : `data:image/png;base64,${qrCode}`}
+                    alt="QR Code WhatsApp"
+                    width={220}
+                    height={220}
                   />
                 ) : (
                   <div className="w-[220px] h-[220px] flex items-center justify-center bg-gray-100 text-gray-400 text-sm">

@@ -5,7 +5,6 @@ import Link from 'next/link';
 import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { DashboardStats, Conversation } from '@/types';
-import { QRCodeCanvas as QRCode } from 'qrcode.react';
 
 interface DashboardData {
   stats: DashboardStats;
@@ -100,10 +99,11 @@ export default function DashboardPage() {
             <div className="flex flex-col items-center gap-4">
               <p className="text-sm text-gray-400">Escaneie o QR Code com seu WhatsApp</p>
               <div className="p-4 bg-white rounded-xl">
-                <QRCode
-                  value={data.whatsapp.qrCode}
-                  size={200}
-                  level="M"
+                <img
+                  src={data.whatsapp.qrCode.startsWith('data:') ? data.whatsapp.qrCode : `data:image/png;base64,${data.whatsapp.qrCode}`}
+                  alt="QR Code WhatsApp"
+                  width={200}
+                  height={200}
                 />
               </div>
               <p className="text-xs text-gray-500">WhatsApp → Dispositivos conectados → Conectar dispositivo</p>
