@@ -5,9 +5,11 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm ci --only=production
+RUN npm ci
 
 RUN npx prisma generate
+
+RUN npm prune --production
 
 COPY src ./src
 
