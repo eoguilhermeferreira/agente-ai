@@ -20,18 +20,33 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: '*',
     methods: ['GET', 'POST'],
-    credentials: true,
+    credentials: false,
   },
 });
 
 global.io = io;
 
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: false }));
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:3000',
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.some((o) => origin.startsWith(o))) {
+      callback(null, true);
+    } else {
+      console.warn('CORS bloqueado para origin:', origin);
+      callback(null, true);
+    }
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
