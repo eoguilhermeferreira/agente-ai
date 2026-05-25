@@ -1,4 +1,14 @@
 require('dotenv').config();
+const { execSync } = require('child_process');
+
+try {
+  console.log('🔄 Sincronizando banco de dados...');
+  execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
+  console.log('✅ Banco de dados sincronizado!');
+} catch (e) {
+  console.error('⚠️ Erro ao sincronizar banco:', e.message);
+}
+
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
