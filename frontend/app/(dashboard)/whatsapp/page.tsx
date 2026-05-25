@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 
@@ -17,57 +17,85 @@ export default function WhatsAppPage() {
   const [instance, setInstance] = useState<Instance | null>(null);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
+  const [fetchingQr, setFetchingQr] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
 
-  const loadInstance = async () => {
+  const loadInstance = useCallback(async () => {
     try {
       const res = await api.get('/whatsapp/instance');
       setInstance(res.data.instance);
-      if (res.data.instance?.qrCode) {
-        setQrCode(res.data.instance.qrCode);
-      }
+      if (res.data.instance?.qrCode) setQrCode(res.data.instance.qrCode);
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  useEffect(() => {
-    loadInstance();
+  const fetchQrCode = useCallback(async () => {
+    try {
+      const res = await api.get('/whatsapp/qrcode');
+      if (res.data.qrCode) setQrCode(res.data.qrCode);
+      return res.data.qrCode;
+    } catch (e) {
+      console.error(e);
+    }
   }, []);
 
   useEffect(() => {
-    if (instance?.status === 'QR_CODE' || instance?.status === 'CONNECTING') {
-      const interval = setInterval(async () => {
-        try {
-          const res = await api.get('/whatsapp/status');
-          if (res.data.status !== instance?.status) {
-            await loadInstance();
-          }
-          if (res.data.status === 'QR_CODE') {
-            const qrRes = await api.get('/whatsapp/qrcode');
-            if (qrRes.data.qrCode) setQrCode(qrRes.data.qrCode);
-          }
-        } catch (e) {
-          console.error(e);
+    loadInstance();
+  }, [loadInstance]);
+
+  // Polling rápido para QR Code e status
+  useEffect(() => {
+    if (!instance) return;
+    if (instance.status === 'CONNECTED' || instance.status === 'DISCONNECTED') return;
+
+    // Busca QR imediatamente se ainda não tiver
+    if (!qrCode) fetchQrCode();
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await api.get('/whatsapp/status');
+        const newStatus = res.data.status;
+
+        if (newStatus === 'CONNECTED') {
+          setInstance((prev) => prev ? { ...prev, status: 'CONNECTED' } : prev);
+          setQrCode(null);
+          toast.success('WhatsApp conectado!');
+          return;
         }
-      }, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [instance?.status]);
+
+        if (newStatus === 'QR_CODE') {
+          setInstance((prev) => prev ? { ...prev, status: 'QR_CODE' } : prev);
+          await fetchQrCode();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }, 2000); // polling a cada 2s
+
+    return () => clearInterval(interval);
+  }, [instance, qrCode, fetchQrCode]);
 
   const handleConnect = async () => {
     setConnecting(true);
+    setQrCode(null);
     try {
       const res = await api.post('/whatsapp/instance');
       setInstance(res.data.instance);
       if (res.data.instance?.qrCode) {
         setQrCode(res.data.instance.qrCode);
+      } else {
+        // Tenta buscar QR em seguida
+        setFetchingQr(true);
+        setTimeout(async () => {
+          await fetchQrCode();
+          setFetchingQr(false);
+        }, 2000);
       }
-      toast.success('Instância criada! Escaneie o QR Code');
     } catch {
-      toast.error('Erro ao criar instância');
+      toast.error('Erro ao criar instância. Verifique as configurações da Evolution API.');
     } finally {
       setConnecting(false);
     }
@@ -86,28 +114,27 @@ export default function WhatsAppPage() {
   };
 
   const handleRefreshQr = async () => {
-    try {
-      const res = await api.get('/whatsapp/qrcode');
-      if (res.data.qrCode) {
-        setQrCode(res.data.qrCode);
-        toast.success('QR Code atualizado');
-      }
-    } catch {
-      toast.error('Erro ao atualizar QR Code');
-    }
+    setFetchingQr(true);
+    const qr = await fetchQrCode();
+    setFetchingQr(false);
+    if (qr) toast.success('QR Code atualizado!');
+    else toast.error('Não foi possível obter o QR Code');
   };
 
-  const statusConfig: Record<InstanceStatus, { color: string; label: string; dot: string }> = {
-    CONNECTED: { color: 'text-green-400 bg-green-400/10 border-green-400/20', label: '● Conectado', dot: 'bg-green-400' },
-    DISCONNECTED: { color: 'text-red-400 bg-red-400/10 border-red-400/20', label: '● Desconectado', dot: 'bg-red-400' },
-    CONNECTING: { color: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20', label: '◌ Conectando...', dot: 'bg-yellow-400' },
-    QR_CODE: { color: 'text-blue-400 bg-blue-400/10 border-blue-400/20', label: '⬡ Aguardando QR', dot: 'bg-blue-400' },
+  const statusConfig: Record<InstanceStatus, { color: string; label: string }> = {
+    CONNECTED: { color: 'text-green-400 bg-green-400/10 border-green-400/20', label: '● Conectado' },
+    DISCONNECTED: { color: 'text-red-400 bg-red-400/10 border-red-400/20', label: '● Desconectado' },
+    CONNECTING: { color: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20', label: '◌ Conectando...' },
+    QR_CODE: { color: 'text-blue-400 bg-blue-400/10 border-blue-400/20', label: '⬡ Aguardando QR' },
   };
 
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-[50vh]">
-        <p className="text-gray-500">Carregando...</p>
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin w-8 h-8 border-2 border-[#A61B4D] border-t-transparent rounded-full" />
+          <p className="text-gray-500 text-sm">Carregando...</p>
+        </div>
       </div>
     );
   }
@@ -123,7 +150,6 @@ export default function WhatsAppPage() {
       </div>
 
       <div className="max-w-2xl space-y-6">
-        {/* Status card */}
         <div className="card-glass rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-semibold">Status da Conexão</h2>
@@ -134,7 +160,8 @@ export default function WhatsAppPage() {
             )}
           </div>
 
-          {!instance ? (
+          {/* Não conectado */}
+          {!instance && (
             <div className="text-center py-8">
               <div className="w-20 h-20 bg-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-4xl">📱</span>
@@ -148,16 +175,26 @@ export default function WhatsAppPage() {
                 disabled={connecting}
                 className="btn-wine px-8 py-3 rounded-lg font-medium disabled:opacity-50"
               >
-                {connecting ? 'Criando instância...' : '+ Conectar WhatsApp'}
+                {connecting ? (
+                  <span className="flex items-center gap-2">
+                    <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                    Criando instância...
+                  </span>
+                ) : '+ Conectar WhatsApp'}
               </button>
             </div>
-          ) : status === 'CONNECTED' ? (
+          )}
+
+          {/* Conectado */}
+          {instance && status === 'CONNECTED' && (
             <div className="text-center py-6">
               <div className="w-20 h-20 bg-green-400/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-4xl">✅</span>
               </div>
               <h3 className="font-semibold text-green-400 mb-2">WhatsApp Conectado!</h3>
-              <p className="text-gray-400 text-sm mb-2">Instância: <code className="text-[#A61B4D]">{instance.instanceName}</code></p>
+              <p className="text-gray-400 text-sm mb-2">
+                Instância: <code className="text-[#A61B4D]">{instance.instanceName}</code>
+              </p>
               <p className="text-gray-500 text-sm mb-6">A IA está respondendo automaticamente seus clientes</p>
               <button
                 onClick={handleDisconnect}
@@ -166,11 +203,15 @@ export default function WhatsAppPage() {
                 Desconectar
               </button>
             </div>
-          ) : (status === 'QR_CODE' || qrCode) ? (
+          )}
+
+          {/* QR Code */}
+          {instance && (status === 'QR_CODE' || status === 'CONNECTING') && (
             <div className="flex flex-col items-center gap-4">
               <p className="text-sm text-gray-400">Escaneie o QR Code com seu WhatsApp</p>
-              <div className="p-5 bg-white rounded-2xl shadow-xl">
-                {qrCode ? (
+
+              <div className="p-5 bg-white rounded-2xl shadow-xl min-h-[230px] min-w-[230px] flex items-center justify-center">
+                {qrCode && !fetchingQr ? (
                   <img
                     src={qrCode.startsWith('data:') ? qrCode : `data:image/png;base64,${qrCode}`}
                     alt="QR Code WhatsApp"
@@ -178,33 +219,31 @@ export default function WhatsAppPage() {
                     height={220}
                   />
                 ) : (
-                  <div className="w-[220px] h-[220px] flex items-center justify-center bg-gray-100 text-gray-400 text-sm">
-                    Gerando QR Code...
+                  <div className="flex flex-col items-center gap-3 text-gray-400">
+                    <div className="animate-spin w-10 h-10 border-2 border-gray-300 border-t-[#A61B4D] rounded-full" />
+                    <p className="text-sm">Gerando QR Code...</p>
                   </div>
                 )}
               </div>
+
               <div className="text-center text-sm text-gray-400 space-y-1">
                 <p>1. Abra o WhatsApp no celular</p>
                 <p>2. Toque em <strong className="text-white">Dispositivos conectados</strong></p>
                 <p>3. Toque em <strong className="text-white">Conectar dispositivo</strong></p>
                 <p>4. Aponte a câmera para o QR Code acima</p>
               </div>
+
               <button
                 onClick={handleRefreshQr}
-                className="text-xs text-[#A61B4D] hover:text-[#c42460] underline"
+                disabled={fetchingQr}
+                className="text-xs text-[#A61B4D] hover:text-[#c42460] underline disabled:opacity-50"
               >
-                QR Code expirou? Clique aqui para atualizar
+                {fetchingQr ? 'Atualizando...' : 'QR Code expirou? Clique aqui para atualizar'}
               </button>
-            </div>
-          ) : (
-            <div className="text-center py-6">
-              <div className="animate-spin w-10 h-10 border-2 border-[#A61B4D] border-t-transparent rounded-full mx-auto mb-4" />
-              <p className="text-gray-400 text-sm">Conectando ao WhatsApp...</p>
             </div>
           )}
         </div>
 
-        {/* Info */}
         <div className="card-glass rounded-xl p-6">
           <h3 className="font-semibold mb-4">Como funciona?</h3>
           <div className="space-y-3 text-sm text-gray-400">
