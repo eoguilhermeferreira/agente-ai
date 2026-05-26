@@ -88,12 +88,6 @@ export default function WhatsAppPage() {
 
       if (res.data.instance?.qrCode) {
         setQrCode(res.data.instance.qrCode);
-      } else {
-        setFetchingQr(true);
-        setTimeout(async () => {
-          await fetchQrCode();
-          setFetchingQr(false);
-        }, 2000);
       }
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
@@ -235,38 +229,55 @@ export default function WhatsAppPage() {
           {/* QR Code */}
           {instance && (status === 'QR_CODE' || status === 'CONNECTING') && (
             <div className="flex flex-col items-center gap-4">
-              <p className="text-sm text-gray-400">Escaneie o QR Code com seu WhatsApp</p>
-
-              <div className="p-5 bg-white rounded-2xl shadow-xl min-h-[230px] min-w-[230px] flex items-center justify-center">
-                {qrCode && !fetchingQr ? (
-                  <img
-                    src={qrCode.startsWith('data:') ? qrCode : `data:image/png;base64,${qrCode}`}
-                    alt="QR Code WhatsApp"
-                    width={220}
-                    height={220}
-                  />
-                ) : (
-                  <div className="flex flex-col items-center gap-3 text-gray-400">
-                    <div className="animate-spin w-10 h-10 border-2 border-gray-300 border-t-[#A61B4D] rounded-full" />
-                    <p className="text-sm">Gerando QR Code...</p>
+              {!qrCode && !fetchingQr ? (
+                <div className="text-center py-6">
+                  <div className="w-16 h-16 bg-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-3xl">📷</span>
                   </div>
-                )}
-              </div>
+                  <p className="text-gray-400 text-sm mb-4">Clique no botão para gerar o QR Code</p>
+                  <button
+                    onClick={handleRefreshQr}
+                    className="btn-wine px-6 py-2 rounded-lg font-medium text-sm"
+                  >
+                    Gerar QR Code
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <p className="text-sm text-gray-400">Escaneie o QR Code com seu WhatsApp</p>
 
-              <div className="text-center text-sm text-gray-400 space-y-1">
-                <p>1. Abra o WhatsApp no celular</p>
-                <p>2. Toque em <strong className="text-white">Dispositivos conectados</strong></p>
-                <p>3. Toque em <strong className="text-white">Conectar dispositivo</strong></p>
-                <p>4. Aponte a câmera para o QR Code acima</p>
-              </div>
+                  <div className="p-5 bg-white rounded-2xl shadow-xl min-h-[230px] min-w-[230px] flex items-center justify-center">
+                    {qrCode && !fetchingQr ? (
+                      <img
+                        src={qrCode.startsWith('data:') ? qrCode : `data:image/png;base64,${qrCode}`}
+                        alt="QR Code WhatsApp"
+                        width={220}
+                        height={220}
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center gap-3 text-gray-400">
+                        <div className="animate-spin w-10 h-10 border-2 border-gray-300 border-t-[#A61B4D] rounded-full" />
+                        <p className="text-sm">Gerando QR Code...</p>
+                      </div>
+                    )}
+                  </div>
 
-              <button
-                onClick={handleRefreshQr}
-                disabled={fetchingQr}
-                className="text-xs text-[#A61B4D] hover:text-[#c42460] underline disabled:opacity-50"
-              >
-                {fetchingQr ? 'Atualizando...' : 'QR Code expirou? Clique aqui para atualizar'}
-              </button>
+                  <div className="text-center text-sm text-gray-400 space-y-1">
+                    <p>1. Abra o WhatsApp no celular</p>
+                    <p>2. Toque em <strong className="text-white">Dispositivos conectados</strong></p>
+                    <p>3. Toque em <strong className="text-white">Conectar dispositivo</strong></p>
+                    <p>4. Aponte a câmera para o QR Code acima</p>
+                  </div>
+
+                  <button
+                    onClick={handleRefreshQr}
+                    disabled={fetchingQr}
+                    className="text-xs text-[#A61B4D] hover:text-[#c42460] underline disabled:opacity-50"
+                  >
+                    {fetchingQr ? 'Atualizando...' : 'QR Code expirou? Clique aqui para atualizar'}
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>
