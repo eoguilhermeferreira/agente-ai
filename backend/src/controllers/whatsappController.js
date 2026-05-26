@@ -11,11 +11,11 @@ const getEvolutionClient = (settings) => {
   const { url, key } = getEvolutionConfig(settings);
   const headers = { 'Content-Type': 'application/json' };
   if (key) headers.apikey = key;
-  return axios.create({
-    baseURL: url,
-    headers,
-    timeout: 30000,
-  });
+  return axios.create({ baseURL: url, headers, timeout: 30000 });
+};
+
+const getEvolutionUrl = (settings) => {
+  return settings?.evolutionApiUrl || process.env.EVOLUTION_API_URL;
 };
 
 const getInstance = async (req, res) => {
@@ -37,11 +37,13 @@ const createInstance = async (req, res) => {
 
     const { url, key } = getEvolutionConfig(settings);
 
-    if (!url || !key) {
+    if (!url) {
       return res.status(400).json({
-        error: 'Evolution API não configurada. Vá em Configurações → Integrações e preencha a URL e chave da Evolution API.',
+        error: 'Evolution API não configurada. Vá em Configurações → Integrações e preencha a URL da Evolution API.',
       });
     }
+
+    console.log('createInstance - url:', url, '| key present:', !!key);
 
     const company = await prisma.company.findUnique({
       where: { id: req.companyId },
@@ -138,11 +140,13 @@ const getQrCode = async (req, res) => {
 
     const { url, key } = getEvolutionConfig(settings);
 
-    if (!url || !key) {
+    if (!url) {
       return res.status(400).json({
         error: 'Evolution API não configurada. Vá em Configurações → Integrações.',
       });
     }
+
+    console.log('getQrCode - url:', url, '| key present:', !!key);
 
     const evolutionClient = getEvolutionClient(settings);
 
