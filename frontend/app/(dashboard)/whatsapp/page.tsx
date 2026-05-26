@@ -48,13 +48,11 @@ export default function WhatsAppPage() {
     loadInstance();
   }, [loadInstance]);
 
-  // Polling para QR Code e status — para após 5 erros consecutivos
+  // Polling de status — detecta quando o QR foi escaneado e conectou
   useEffect(() => {
     if (!instance) return;
     if (instance.status === 'CONNECTED' || instance.status === 'DISCONNECTED') return;
     if (pollErrors >= 5) return;
-
-    if (!qrCode) fetchQrCode();
 
     const interval = setInterval(async () => {
       try {
@@ -66,11 +64,6 @@ export default function WhatsAppPage() {
           setInstance((prev) => prev ? { ...prev, status: 'CONNECTED' } : prev);
           setQrCode(null);
           toast.success('WhatsApp conectado!');
-          return;
-        }
-
-        if (newStatus === 'QR_CODE' && !qrCode) {
-          await fetchQrCode();
         }
       } catch (e) {
         console.error(e);
@@ -79,7 +72,7 @@ export default function WhatsAppPage() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [instance, qrCode, fetchQrCode, pollErrors]);
+  }, [instance, pollErrors]);
 
   const handleConnect = async () => {
     setConnecting(true);
