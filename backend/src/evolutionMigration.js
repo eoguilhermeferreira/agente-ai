@@ -1,7 +1,7 @@
 const { Client } = require('pg');
 
 async function runEvolutionMigration() {
-  const client = new Client({ connectionString: process.env.DATABASE_URL });
+  const client = new Client({ connectionString: process.env.EVOLUTION_DB_URL || process.env.DATABASE_URL });
   try {
     await client.connect();
 
