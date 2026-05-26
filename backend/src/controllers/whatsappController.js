@@ -11,6 +11,7 @@ const getEvolutionClient = (settings) => {
   const { url, key } = getEvolutionConfig(settings);
   const headers = { 'Content-Type': 'application/json' };
   if (key) headers.apikey = key;
+  console.log('Evolution client - apikey header:', key ? `"${key}"` : 'none');
   return axios.create({ baseURL: url, headers, timeout: 30000 });
 };
 

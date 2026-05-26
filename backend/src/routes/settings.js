@@ -69,11 +69,15 @@ router.put('/', async (req, res) => {
       evolutionApiUrl,
     };
 
-    if (openaiKey && !openaiKey.startsWith('***')) {
+    if (openaiKey === '' || openaiKey === null) {
+      data.openaiKey = null;
+    } else if (openaiKey && !openaiKey.startsWith('***')) {
       data.openaiKey = openaiKey;
     }
 
-    if (evolutionApiKey && !evolutionApiKey.startsWith('***')) {
+    if (evolutionApiKey === '' || evolutionApiKey === null) {
+      data.evolutionApiKey = null;
+    } else if (evolutionApiKey && !evolutionApiKey.startsWith('***')) {
       data.evolutionApiKey = evolutionApiKey;
     }
 
