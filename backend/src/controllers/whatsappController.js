@@ -145,7 +145,31 @@ const getQrCode = async (req, res) => {
     const evolutionClient = getEvolutionClient(settings);
 
     try {
-      const response = await evolutionClient.get(`/instance/connect/${instance.instanceName}`);
+      // Se instância não existe na Evolution API, recria automaticamente
+      let response;
+      try {
+        response = await evolutionClient.get(`/instance/connect/${instance.instanceName}`);
+      } catch (connectErr) {
+        const status = connectErr.response?.status;
+        if (status === 404 || status === 400) {
+          console.log('Instância não encontrada na Evolution API, recriando...');
+          try { await evolutionClient.delete(`/instance/delete/${instance.instanceName}`); } catch (_) {}
+          await evolutionClient.post('/instance/create', {
+            instanceName: instance.instanceName,
+            qrcode: true,
+            integration: 'WHATSAPP-BAILEYS',
+            webhook: {
+              url: instance.webhookUrl,
+              events: ['MESSAGES_UPSERT', 'CONNECTION_UPDATE', 'QRCODE_UPDATED'],
+            },
+          });
+          await new Promise(r => setTimeout(r, 1500));
+          response = await evolutionClient.get(`/instance/connect/${instance.instanceName}`);
+        } else {
+          throw connectErr;
+        }
+      }
+
       console.log('Evolution connect response:', JSON.stringify(response.data).slice(0, 200));
 
       const qrCode =
