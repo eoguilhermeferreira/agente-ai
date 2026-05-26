@@ -129,7 +129,7 @@ const handleNewMessage = async (payload) => {
         const delay = (settings.responseDelay || 2) * 1000;
         await new Promise((resolve) => setTimeout(resolve, delay));
 
-        await evolutionService.sendMessage({
+        const sent = await evolutionService.sendMessage({
           instanceName,
           settings,
           remoteJid,
@@ -142,27 +142,29 @@ const handleNewMessage = async (payload) => {
             fromMe: true,
             conversationId: conversation.id,
             type: 'TEXT',
-            status: 'SENT',
+            status: sent ? 'SENT' : 'FAILED',
           },
         });
 
-        await prisma.conversation.update({
-          where: { id: conversation.id },
-          data: { lastMessage: aiResponse, lastMessageAt: new Date() },
-        });
-
-        if (global.io) {
-          global.io.to(`company-${company.id}`).emit('new-message', {
-            conversationId: conversation.id,
-            message: aiResponse,
-            fromMe: true,
+        if (sent) {
+          await prisma.conversation.update({
+            where: { id: conversation.id },
+            data: { lastMessage: aiResponse, lastMessageAt: new Date() },
           });
 
-          global.io.to(`conv-${conversation.id}`).emit('message', {
-            content: aiResponse,
-            fromMe: true,
-            createdAt: new Date(),
-          });
+          if (global.io) {
+            global.io.to(`company-${company.id}`).emit('new-message', {
+              conversationId: conversation.id,
+              message: aiResponse,
+              fromMe: true,
+            });
+
+            global.io.to(`conv-${conversation.id}`).emit('message', {
+              content: aiResponse,
+              fromMe: true,
+              createdAt: new Date(),
+            });
+          }
         }
       }
     }

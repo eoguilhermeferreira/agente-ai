@@ -9,23 +9,6 @@ async function runEvolutionMigration() {
   });
 
   try {
-    // Patches sempre executados (colunas que podem estar faltando)
-    const patches = [
-      `ALTER TABLE "IsOnWhatsapp" ADD COLUMN IF NOT EXISTS "lid" VARCHAR(100)`,
-      `ALTER TABLE "Instance" ADD COLUMN IF NOT EXISTS "businessId" VARCHAR(100)`,
-      `ALTER TABLE "Instance" ADD COLUMN IF NOT EXISTS "clientName" VARCHAR(100)`,
-    ];
-
-    for (const sql of patches) {
-      try {
-        await prisma.$executeRawUnsafe(sql);
-      } catch (e) {
-        if (!e.message.includes('already exists') && !e.message.includes('does not exist')) {
-          console.warn('⚠️ Patch aviso:', e.message.slice(0, 100));
-        }
-      }
-    }
-
     const res = await prisma.$queryRawUnsafe(`SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema='public' AND table_name='Instance')`);
     if (res[0].exists) {
       console.log('✅ Tabelas Evolution API já existem');

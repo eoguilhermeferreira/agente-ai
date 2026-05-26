@@ -9,9 +9,6 @@ try {
   console.error('⚠️ Erro ao sincronizar banco:', e.message);
 }
 
-const runEvolutionMigration = require('./evolutionMigration');
-runEvolutionMigration();
-
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -106,8 +103,35 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => {
+
+// Start server then run DB patches using the main prisma pool (no extra connections)
+server.listen(PORT, async () => {
   console.log(`🚀 ChatNex API rodando na porta ${PORT}`);
+
+  const prisma = require('./config/prisma');
+  const runEvolutionMigration = require('./evolutionMigration');
+
+  // Critical column patches — run with main prisma client to avoid extra connections
+  const patches = [
+    `ALTER TABLE "IsOnWhatsapp" ADD COLUMN IF NOT EXISTS "lid" VARCHAR(100)`,
+    `ALTER TABLE "Instance" ADD COLUMN IF NOT EXISTS "businessId" VARCHAR(100)`,
+    `ALTER TABLE "Instance" ADD COLUMN IF NOT EXISTS "clientName" VARCHAR(100)`,
+  ];
+
+  console.log('🔄 Aplicando patches de colunas...');
+  for (const sql of patches) {
+    try {
+      await prisma.$executeRawUnsafe(sql);
+    } catch (e) {
+      if (!e.message.includes('already exists') && !e.message.includes('does not exist')) {
+        console.warn('⚠️ Patch:', e.message.slice(0, 120));
+      }
+    }
+  }
+  console.log('✅ Patches aplicados');
+
+  // Create Evolution API tables if they don't exist yet
+  await runEvolutionMigration();
 });
 
 module.exports = { app, io };
