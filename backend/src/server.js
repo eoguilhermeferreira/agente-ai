@@ -1,13 +1,4 @@
 require('dotenv').config();
-const { execSync } = require('child_process');
-
-try {
-  console.log('🔄 Sincronizando banco de dados...');
-  execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
-  console.log('✅ Banco de dados sincronizado!');
-} catch (e) {
-  console.error('⚠️ Erro ao sincronizar banco:', e.message);
-}
 
 const express = require('express');
 const http = require('http');
@@ -111,26 +102,38 @@ server.listen(PORT, async () => {
   const prisma = require('./config/prisma');
   const runEvolutionMigration = require('./evolutionMigration');
 
-  // Critical column patches — run with main prisma client to avoid extra connections
   const patches = [
     `ALTER TABLE "IsOnWhatsapp" ADD COLUMN IF NOT EXISTS "lid" VARCHAR(100)`,
     `ALTER TABLE "Instance" ADD COLUMN IF NOT EXISTS "businessId" VARCHAR(100)`,
     `ALTER TABLE "Instance" ADD COLUMN IF NOT EXISTS "clientName" VARCHAR(100)`,
   ];
 
-  console.log('🔄 Aplicando patches de colunas...');
-  for (const sql of patches) {
-    try {
-      await prisma.$executeRawUnsafe(sql);
-    } catch (e) {
-      if (!e.message.includes('already exists') && !e.message.includes('does not exist')) {
-        console.warn('⚠️ Patch:', e.message.slice(0, 120));
+  // Retry patches until DB connections are available (Evolution API may hold many on startup)
+  const applyPatches = async (attempt = 1) => {
+    let allOk = true;
+    for (const sql of patches) {
+      try {
+        await prisma.$executeRawUnsafe(sql);
+      } catch (e) {
+        if (e.message.includes('already exists') || e.message.includes('does not exist')) continue;
+        if (e.message.includes('too many') && attempt <= 6) {
+          allOk = false;
+          break;
+        }
+        console.warn('⚠️ Patch:', e.message.slice(0, 100));
       }
     }
-  }
-  console.log('✅ Patches aplicados');
+    if (!allOk) {
+      console.log(`⏳ Aguardando conexões disponíveis (tentativa ${attempt}/6)...`);
+      await new Promise(r => setTimeout(r, 5000));
+      return applyPatches(attempt + 1);
+    }
+    console.log('✅ Patches aplicados');
+  };
 
-  // Create Evolution API tables if they don't exist yet
+  // Wait 3s for Evolution API connections to settle, then apply patches
+  await new Promise(r => setTimeout(r, 3000));
+  await applyPatches();
   await runEvolutionMigration();
 });
 
