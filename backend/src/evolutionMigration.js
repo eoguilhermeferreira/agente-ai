@@ -1,13 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 
 async function runEvolutionMigration() {
-  const dbUrl = process.env.EVOLUTION_DB_URL || process.env.DATABASE_URL;
-  if (!dbUrl) {
-    console.log('⚠️ EVOLUTION_DB_URL não configurado, pulando migration Evolution API');
-    return;
-  }
-
-  const prisma = new PrismaClient({ datasources: { db: { url: dbUrl } } });
+  const prisma = new PrismaClient({ datasources: { db: { url: process.env.DATABASE_URL } } });
 
   try {
     const res = await prisma.$queryRawUnsafe(`SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema='public' AND table_name='Instance')`);
