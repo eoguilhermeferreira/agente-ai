@@ -52,7 +52,9 @@ const createInstance = async (req, res) => {
 
     const instanceName = `chatnex-${company.slug}`;
     const evolutionClient = getEvolutionClient(settings);
-    const webhookUrl = `${process.env.BACKEND_URL}/api/webhook/evolution`;
+    let backendUrl = process.env.BACKEND_URL || '';
+    if (backendUrl && !backendUrl.startsWith('http')) backendUrl = `https://${backendUrl}`;
+    const webhookUrl = `${backendUrl}/api/webhook/evolution`;
 
     let qrCode = null;
     let instanceKey = null;
