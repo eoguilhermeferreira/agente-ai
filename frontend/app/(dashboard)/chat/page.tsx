@@ -19,6 +19,8 @@ function ChatContent() {
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const loadedConvRef = useRef<string | null>(null);
+
   useEffect(() => {
     loadConversations();
   }, []);
@@ -26,7 +28,10 @@ function ChatContent() {
   useEffect(() => {
     if (selectedId && conversations.length > 0) {
       const conv = conversations.find((c) => c.id === selectedId);
-      if (conv) selectConversation(conv);
+      if (conv && loadedConvRef.current !== selectedId) {
+        loadedConvRef.current = selectedId;
+        selectConversation(conv);
+      }
     }
   }, [selectedId, conversations]);
 

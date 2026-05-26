@@ -1,8 +1,10 @@
 const { PrismaClient } = require('@prisma/client');
 
 async function runEvolutionMigration() {
+  const dbUrl = process.env.DATABASE_URL || '';
+  const urlWithLimit = dbUrl + (dbUrl.includes('?') ? '&' : '?') + 'connection_limit=2&pool_timeout=15';
   const prisma = new PrismaClient({
-    datasources: { db: { url: process.env.DATABASE_URL } },
+    datasources: { db: { url: urlWithLimit } },
     log: [],
   });
 
