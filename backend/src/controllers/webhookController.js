@@ -9,6 +9,8 @@ const handleEvolutionWebhook = async (req, res) => {
     const payload = req.body;
     const event = payload.event;
 
+    console.log(`[Webhook] event="${event}" instance="${payload.instance}"`);
+
     if (event === 'messages.upsert') {
       await handleNewMessage(payload);
     } else if (event === 'connection.update') {
@@ -106,6 +108,8 @@ const handleNewMessage = async (payload) => {
         createdAt: new Date(),
       });
     }
+
+    console.log(`[Webhook] aiEnabled=${settings?.aiEnabled} autoReply=${settings?.autoReply} conv.aiEnabled=${conversation.aiEnabled} openaiKey=${!!settings?.openaiKey}`);
 
     if (settings?.aiEnabled && settings?.autoReply && conversation.aiEnabled) {
       const messages = await prisma.message.findMany({

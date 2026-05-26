@@ -4,11 +4,10 @@ const getClient = (settings) => {
   const baseURL = settings.evolutionApiUrl || process.env.EVOLUTION_API_URL;
   const apiKey = settings.evolutionApiKey || process.env.EVOLUTION_API_KEY;
 
-  return axios.create({
-    baseURL,
-    headers: { apikey: apiKey, 'Content-Type': 'application/json' },
-    timeout: 15000,
-  });
+  const headers = { 'Content-Type': 'application/json' };
+  if (apiKey) headers.apikey = apiKey;
+
+  return axios.create({ baseURL, headers, timeout: 15000 });
 };
 
 const sendMessage = async ({ instanceName, settings, remoteJid, message }) => {
