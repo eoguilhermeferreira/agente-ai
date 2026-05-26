@@ -54,6 +54,12 @@ const createInstance = async (req, res) => {
     let evolutionError = null;
 
     try {
+      // Tenta deletar instância antiga se existir
+      try {
+        await evolutionClient.delete(`/instance/delete/${instanceName}`);
+        await new Promise(r => setTimeout(r, 1000));
+      } catch (_) {}
+
       const evolutionResponse = await evolutionClient.post('/instance/create', {
         instanceName,
         qrcode: true,
