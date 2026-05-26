@@ -65,8 +65,9 @@ app.use(express.urlencoded({ extended: true }));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
-  message: { error: 'Muitas requisições. Tente novamente em 15 minutos.' },
+  max: 2000,
+  message: { error: 'Muitas requisições. Tente novamente em alguns minutos.' },
+  skip: (req) => req.path.startsWith('/webhook'),
 });
 app.use('/api/', limiter);
 
