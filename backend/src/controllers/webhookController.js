@@ -2,6 +2,9 @@ const prisma = require('../config/prisma');
 const aiService = require('../services/aiService');
 const evolutionService = require('../services/evolutionService');
 
+// Debounce map: remoteJid -> { timer, contents, conversationId, instanceName, settings, clientName, companyId }
+const pendingAI = new Map();
+
 const handleEvolutionWebhook = async (req, res) => {
   res.status(200).json({ received: true });
 
@@ -20,6 +23,93 @@ const handleEvolutionWebhook = async (req, res) => {
     }
   } catch (error) {
     console.error('Erro no webhook:', error);
+  }
+};
+
+const sendAIResponse = async ({ conversationId, instanceName, settings, remoteJid, clientName, companyId }) => {
+  try {
+    const messages = await prisma.message.findMany({
+      where: { conversationId },
+      orderBy: { createdAt: 'asc' },
+      take: 20,
+    });
+
+    const lastUserMessages = messages
+      .filter(m => !m.fromMe)
+      .slice(-5)
+      .map(m => m.content)
+      .join('\n');
+
+    const aiResponse = await aiService.generateResponse({
+      settings,
+      messages,
+      newMessage: lastUserMessages,
+      clientName,
+    });
+
+    if (!aiResponse) return;
+
+    // Split response into short paragraphs and send each with delay
+    const chunks = aiResponse
+      .split(/\n\n+/)
+      .map(c => c.trim())
+      .filter(c => c.length > 0);
+
+    let lastSavedContent = null;
+
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
+
+      if (i === 0) {
+        const delay = (settings.responseDelay || 2) * 1000;
+        await new Promise(r => setTimeout(r, delay));
+      } else {
+        await new Promise(r => setTimeout(r, 1500));
+      }
+
+      const sent = await evolutionService.sendMessage({
+        instanceName,
+        settings,
+        remoteJid,
+        message: chunk,
+      });
+
+      await prisma.message.create({
+        data: {
+          content: chunk,
+          fromMe: true,
+          conversationId,
+          type: 'TEXT',
+          status: sent ? 'SENT' : 'FAILED',
+        },
+      });
+
+      if (sent) {
+        lastSavedContent = chunk;
+
+        if (global.io) {
+          global.io.to(`company-${companyId}`).emit('new-message', {
+            conversationId,
+            message: chunk,
+            fromMe: true,
+          });
+          global.io.to(`conv-${conversationId}`).emit('message', {
+            content: chunk,
+            fromMe: true,
+            createdAt: new Date(),
+          });
+        }
+      }
+    }
+
+    if (lastSavedContent) {
+      await prisma.conversation.update({
+        where: { id: conversationId },
+        data: { lastMessage: lastSavedContent, lastMessageAt: new Date() },
+      });
+    }
+  } catch (error) {
+    console.error('Erro ao gerar/enviar resposta IA:', error);
   }
 };
 
@@ -109,64 +199,26 @@ const handleNewMessage = async (payload) => {
       });
     }
 
-    console.log(`[Webhook] aiEnabled=${settings?.aiEnabled} autoReply=${settings?.autoReply} conv.aiEnabled=${conversation.aiEnabled} openaiKey=${!!settings?.openaiKey}`);
-
     if (settings?.aiEnabled && settings?.autoReply && conversation.aiEnabled) {
-      const messages = await prisma.message.findMany({
-        where: { conversationId: conversation.id },
-        orderBy: { createdAt: 'asc' },
-        take: 20,
-      });
+      const debounceMs = (settings.responseDelay || 5) * 1000;
 
-      const aiResponse = await aiService.generateResponse({
-        settings,
-        messages,
-        newMessage: messageContent,
-        clientName,
-      });
+      // Cancel existing timer for this contact and reset
+      const existing = pendingAI.get(remoteJid);
+      if (existing?.timer) clearTimeout(existing.timer);
 
-      if (aiResponse) {
-        const delay = (settings.responseDelay || 2) * 1000;
-        await new Promise((resolve) => setTimeout(resolve, delay));
-
-        const sent = await evolutionService.sendMessage({
+      const timer = setTimeout(() => {
+        pendingAI.delete(remoteJid);
+        sendAIResponse({
+          conversationId: conversation.id,
           instanceName,
           settings,
           remoteJid,
-          message: aiResponse,
+          clientName,
+          companyId: company.id,
         });
+      }, debounceMs);
 
-        await prisma.message.create({
-          data: {
-            content: aiResponse,
-            fromMe: true,
-            conversationId: conversation.id,
-            type: 'TEXT',
-            status: sent ? 'SENT' : 'FAILED',
-          },
-        });
-
-        if (sent) {
-          await prisma.conversation.update({
-            where: { id: conversation.id },
-            data: { lastMessage: aiResponse, lastMessageAt: new Date() },
-          });
-
-          if (global.io) {
-            global.io.to(`company-${company.id}`).emit('new-message', {
-              conversationId: conversation.id,
-              message: aiResponse,
-              fromMe: true,
-            });
-
-            global.io.to(`conv-${conversation.id}`).emit('message', {
-              content: aiResponse,
-              fromMe: true,
-              createdAt: new Date(),
-            });
-          }
-        }
-      }
+      pendingAI.set(remoteJid, { timer, conversationId: conversation.id });
     }
   } catch (error) {
     console.error('Erro ao processar mensagem:', error);
