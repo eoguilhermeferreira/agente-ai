@@ -20,6 +20,7 @@ export default function WhatsAppPage() {
   const [fetchingQr, setFetchingQr] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [evolutionError, setEvolutionError] = useState<string | null>(null);
+  const [pollErrors, setPollErrors] = useState(0);
 
   const loadInstance = useCallback(async () => {
     try {
@@ -47,18 +48,19 @@ export default function WhatsAppPage() {
     loadInstance();
   }, [loadInstance]);
 
-  // Polling rápido para QR Code e status
+  // Polling para QR Code e status — para após 5 erros consecutivos
   useEffect(() => {
     if (!instance) return;
     if (instance.status === 'CONNECTED' || instance.status === 'DISCONNECTED') return;
+    if (pollErrors >= 5) return;
 
-    // Busca QR imediatamente se ainda não tiver
     if (!qrCode) fetchQrCode();
 
     const interval = setInterval(async () => {
       try {
         const res = await api.get('/whatsapp/status');
         const newStatus = res.data.status;
+        setPollErrors(0);
 
         if (newStatus === 'CONNECTED') {
           setInstance((prev) => prev ? { ...prev, status: 'CONNECTED' } : prev);
@@ -67,17 +69,17 @@ export default function WhatsAppPage() {
           return;
         }
 
-        if (newStatus === 'QR_CODE') {
-          setInstance((prev) => prev ? { ...prev, status: 'QR_CODE' } : prev);
+        if (newStatus === 'QR_CODE' && !qrCode) {
           await fetchQrCode();
         }
       } catch (e) {
         console.error(e);
+        setPollErrors((n) => n + 1);
       }
-    }, 2000); // polling a cada 2s
+    }, 5000);
 
     return () => clearInterval(interval);
-  }, [instance, qrCode, fetchQrCode]);
+  }, [instance, qrCode, fetchQrCode, pollErrors]);
 
   const handleConnect = async () => {
     setConnecting(true);

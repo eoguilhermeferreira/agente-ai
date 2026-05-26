@@ -146,7 +146,13 @@ const getQrCode = async (req, res) => {
 
     try {
       const response = await evolutionClient.get(`/instance/connect/${instance.instanceName}`);
-      const qrCode = response.data?.base64 || response.data?.qrcode?.base64 || null;
+      console.log('Evolution connect response:', JSON.stringify(response.data).slice(0, 200));
+
+      const qrCode =
+        response.data?.base64 ||
+        response.data?.qrcode?.base64 ||
+        response.data?.code ||
+        null;
 
       if (qrCode) {
         await prisma.whatsappInstance.update({
@@ -163,8 +169,9 @@ const getQrCode = async (req, res) => {
 
       return res.json({ qrCode: instance.qrCode || null });
     } catch (apiError) {
-      const errMsg = apiError.response?.data?.message || apiError.message;
-      console.error('Evolution connect error:', errMsg);
+      const errData = apiError.response?.data;
+      const errMsg = errData?.message || errData?.error || apiError.message;
+      console.error('Evolution connect error:', errMsg, '| Full:', JSON.stringify(errData));
       return res.status(502).json({
         error: `Erro ao conectar na Evolution API: ${errMsg}`,
       });
