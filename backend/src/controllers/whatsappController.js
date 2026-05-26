@@ -153,7 +153,7 @@ const getQrCode = async (req, res) => {
         response = await evolutionClient.get(`/instance/connect/${instance.instanceName}`);
       } catch (connectErr) {
         const status = connectErr.response?.status;
-        if (status === 404 || status === 400) {
+        if (status === 404 || status === 400 || status === 401) {
           console.log('Instância não encontrada na Evolution API, recriando...');
           try { await evolutionClient.delete(`/instance/delete/${instance.instanceName}`); } catch (_) {}
           await evolutionClient.post('/instance/create', {
