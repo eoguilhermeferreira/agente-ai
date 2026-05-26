@@ -1,16 +1,17 @@
 const axios = require('axios');
 const prisma = require('../config/prisma');
 
-const getEvolutionClient = (settings) => {
-  const baseURL = settings.evolutionApiUrl || process.env.EVOLUTION_API_URL;
-  const apiKey = settings.evolutionApiKey || process.env.EVOLUTION_API_KEY;
+const getEvolutionConfig = (settings) => {
+  const url = settings?.evolutionApiUrl || process.env.EVOLUTION_API_URL;
+  const key = settings?.evolutionApiKey || process.env.EVOLUTION_API_KEY;
+  return { url, key };
+};
 
+const getEvolutionClient = (settings) => {
+  const { url, key } = getEvolutionConfig(settings);
   return axios.create({
-    baseURL,
-    headers: {
-      apikey: apiKey,
-      'Content-Type': 'application/json',
-    },
+    baseURL: url,
+    headers: { apikey: key, 'Content-Type': 'application/json' },
     timeout: 30000,
   });
 };
@@ -20,12 +21,7 @@ const getInstance = async (req, res) => {
     const instance = await prisma.whatsappInstance.findFirst({
       where: { companyId: req.companyId },
     });
-
-    if (!instance) {
-      return res.json({ instance: null });
-    }
-
-    res.json({ instance });
+    res.json({ instance: instance || null });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar instância' });
   }
@@ -37,17 +33,28 @@ const createInstance = async (req, res) => {
       where: { companyId: req.companyId },
     });
 
+    const { url, key } = getEvolutionConfig(settings);
+
+    if (!url || !key) {
+      return res.status(400).json({
+        error: 'Evolution API não configurada. Vá em Configurações → Integrações e preencha a URL e chave da Evolution API.',
+      });
+    }
+
     const company = await prisma.company.findUnique({
       where: { id: req.companyId },
     });
 
     const instanceName = `chatnex-${company.slug}`;
-    const evolutionClient = getEvolutionClient(settings || {});
+    const evolutionClient = getEvolutionClient(settings);
     const webhookUrl = `${process.env.BACKEND_URL}/api/webhook/evolution`;
 
-    let evolutionResponse;
+    let qrCode = null;
+    let instanceKey = null;
+    let evolutionError = null;
+
     try {
-      evolutionResponse = await evolutionClient.post('/instance/create', {
+      const evolutionResponse = await evolutionClient.post('/instance/create', {
         instanceName,
         qrcode: true,
         integration: 'WHATSAPP-BAILEYS',
@@ -56,38 +63,39 @@ const createInstance = async (req, res) => {
           events: ['MESSAGES_UPSERT', 'CONNECTION_UPDATE', 'QRCODE_UPDATED'],
         },
       });
+
+      qrCode = evolutionResponse.data?.qrcode?.base64 || null;
+      instanceKey = evolutionResponse.data?.hash?.apikey || null;
+
+      // Se não veio QR na criação, tenta buscar
+      if (!qrCode) {
+        try {
+          const connectRes = await evolutionClient.get(`/instance/connect/${instanceName}`);
+          qrCode = connectRes.data?.base64 || connectRes.data?.qrcode?.base64 || null;
+        } catch (e) {
+          console.error('Erro ao buscar QR após criação:', e.message);
+        }
+      }
     } catch (apiError) {
-      console.error('Evolution API error:', apiError.response?.data || apiError.message);
+      evolutionError = apiError.response?.data?.message || apiError.message;
+      console.error('Evolution API error:', evolutionError);
     }
 
     const existing = await prisma.whatsappInstance.findFirst({
       where: { companyId: req.companyId },
     });
 
-    let instance;
-    if (existing) {
-      instance = await prisma.whatsappInstance.update({
-        where: { id: existing.id },
-        data: {
-          instanceName,
-          status: 'QR_CODE',
-          qrCode: evolutionResponse?.data?.qrcode?.base64 || null,
-          instanceKey: evolutionResponse?.data?.hash?.apikey || null,
-          webhookUrl,
-        },
-      });
-    } else {
-      instance = await prisma.whatsappInstance.create({
-        data: {
-          instanceName,
-          companyId: req.companyId,
-          status: 'QR_CODE',
-          qrCode: evolutionResponse?.data?.qrcode?.base64 || null,
-          instanceKey: evolutionResponse?.data?.hash?.apikey || null,
-          webhookUrl,
-        },
-      });
-    }
+    const instanceData = {
+      instanceName,
+      status: 'QR_CODE',
+      qrCode,
+      instanceKey,
+      webhookUrl,
+    };
+
+    const instance = existing
+      ? await prisma.whatsappInstance.update({ where: { id: existing.id }, data: instanceData })
+      : await prisma.whatsappInstance.create({ data: { ...instanceData, companyId: req.companyId } });
 
     if (global.io) {
       global.io.to(`company-${req.companyId}`).emit('instance-update', {
@@ -96,7 +104,10 @@ const createInstance = async (req, res) => {
       });
     }
 
-    res.json({ instance });
+    res.json({
+      instance,
+      evolutionError: evolutionError || null,
+    });
   } catch (error) {
     console.error('Erro ao criar instância:', error);
     res.status(500).json({ error: 'Erro ao criar instância WhatsApp' });
@@ -117,14 +128,19 @@ const getQrCode = async (req, res) => {
       where: { companyId: req.companyId },
     });
 
-    const evolutionClient = getEvolutionClient(settings || {});
+    const { url, key } = getEvolutionConfig(settings);
+
+    if (!url || !key) {
+      return res.status(400).json({
+        error: 'Evolution API não configurada. Vá em Configurações → Integrações.',
+      });
+    }
+
+    const evolutionClient = getEvolutionClient(settings);
 
     try {
-      const response = await evolutionClient.get(
-        `/instance/connect/${instance.instanceName}`
-      );
-
-      const qrCode = response.data?.base64 || response.data?.qrcode?.base64;
+      const response = await evolutionClient.get(`/instance/connect/${instance.instanceName}`);
+      const qrCode = response.data?.base64 || response.data?.qrcode?.base64 || null;
 
       if (qrCode) {
         await prisma.whatsappInstance.update({
@@ -138,11 +154,15 @@ const getQrCode = async (req, res) => {
 
         return res.json({ qrCode });
       }
-    } catch (apiError) {
-      console.error('Evolution connect error:', apiError.response?.data || apiError.message);
-    }
 
-    res.json({ qrCode: instance.qrCode, status: instance.status });
+      return res.json({ qrCode: instance.qrCode || null });
+    } catch (apiError) {
+      const errMsg = apiError.response?.data?.message || apiError.message;
+      console.error('Evolution connect error:', errMsg);
+      return res.status(502).json({
+        error: `Erro ao conectar na Evolution API: ${errMsg}`,
+      });
+    }
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar QR Code' });
   }
@@ -176,9 +196,7 @@ const disconnectInstance = async (req, res) => {
     });
 
     if (global.io) {
-      global.io.to(`company-${req.companyId}`).emit('instance-update', {
-        status: 'DISCONNECTED',
-      });
+      global.io.to(`company-${req.companyId}`).emit('instance-update', { status: 'DISCONNECTED' });
     }
 
     res.json({ message: 'WhatsApp desconectado com sucesso' });
@@ -204,26 +222,18 @@ const getStatus = async (req, res) => {
     const evolutionClient = getEvolutionClient(settings || {});
 
     try {
-      const response = await evolutionClient.get(
-        `/instance/connectionState/${instance.instanceName}`
-      );
-
+      const response = await evolutionClient.get(`/instance/connectionState/${instance.instanceName}`);
       const state = response.data?.instance?.state;
       let status = 'DISCONNECTED';
-
       if (state === 'open') status = 'CONNECTED';
       else if (state === 'connecting') status = 'CONNECTING';
-      else if (state === 'close') status = 'DISCONNECTED';
 
       if (status !== instance.status) {
-        await prisma.whatsappInstance.update({
-          where: { id: instance.id },
-          data: { status },
-        });
+        await prisma.whatsappInstance.update({ where: { id: instance.id }, data: { status } });
       }
 
       return res.json({ status, connected: status === 'CONNECTED' });
-    } catch (apiError) {
+    } catch {
       return res.json({ status: instance.status, connected: instance.status === 'CONNECTED' });
     }
   } catch (error) {

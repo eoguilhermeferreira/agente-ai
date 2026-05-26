@@ -19,6 +19,7 @@ export default function WhatsAppPage() {
   const [connecting, setConnecting] = useState(false);
   const [fetchingQr, setFetchingQr] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
+  const [evolutionError, setEvolutionError] = useState<string | null>(null);
 
   const loadInstance = useCallback(async () => {
     try {
@@ -81,21 +82,29 @@ export default function WhatsAppPage() {
   const handleConnect = async () => {
     setConnecting(true);
     setQrCode(null);
+    setEvolutionError(null);
     try {
       const res = await api.post('/whatsapp/instance');
       setInstance(res.data.instance);
+
+      if (res.data.evolutionError) {
+        setEvolutionError(res.data.evolutionError);
+      }
+
       if (res.data.instance?.qrCode) {
         setQrCode(res.data.instance.qrCode);
       } else {
-        // Tenta buscar QR em seguida
         setFetchingQr(true);
         setTimeout(async () => {
           await fetchQrCode();
           setFetchingQr(false);
         }, 2000);
       }
-    } catch {
-      toast.error('Erro ao criar instância. Verifique as configurações da Evolution API.');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+        || 'Erro ao criar instância';
+      setEvolutionError(msg);
+      toast.error(msg);
     } finally {
       setConnecting(false);
     }
@@ -115,10 +124,23 @@ export default function WhatsAppPage() {
 
   const handleRefreshQr = async () => {
     setFetchingQr(true);
-    const qr = await fetchQrCode();
-    setFetchingQr(false);
-    if (qr) toast.success('QR Code atualizado!');
-    else toast.error('Não foi possível obter o QR Code');
+    setEvolutionError(null);
+    try {
+      const res = await api.get('/whatsapp/qrcode');
+      if (res.data.qrCode) {
+        setQrCode(res.data.qrCode);
+        toast.success('QR Code atualizado!');
+      } else {
+        toast.error('QR Code não disponível ainda. Aguarde alguns segundos.');
+      }
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+        || 'Erro ao buscar QR Code';
+      setEvolutionError(msg);
+      toast.error(msg);
+    } finally {
+      setFetchingQr(false);
+    }
   };
 
   const statusConfig: Record<InstanceStatus, { color: string; label: string }> = {
@@ -151,6 +173,16 @@ export default function WhatsAppPage() {
 
       <div className="max-w-2xl space-y-6">
         <div className="card-glass rounded-xl p-6">
+          {evolutionError && (
+            <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-sm text-red-400">
+              <p className="font-medium mb-1">⚠️ Erro na Evolution API</p>
+              <p>{evolutionError}</p>
+              <a href="/settings" className="underline text-red-300 mt-1 inline-block">
+                Ir para Configurações → Integrações
+              </a>
+            </div>
+          )}
+
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-semibold">Status da Conexão</h2>
             {instance && (
