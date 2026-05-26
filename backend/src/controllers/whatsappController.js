@@ -9,9 +9,11 @@ const getEvolutionConfig = (settings) => {
 
 const getEvolutionClient = (settings) => {
   const { url, key } = getEvolutionConfig(settings);
+  const headers = { 'Content-Type': 'application/json' };
+  if (key) headers.apikey = key;
   return axios.create({
     baseURL: url,
-    headers: { apikey: key, 'Content-Type': 'application/json' },
+    headers,
     timeout: 30000,
   });
 };
