@@ -9,6 +9,9 @@ try {
   console.error('⚠️ Erro ao sincronizar banco:', e.message);
 }
 
+const runEvolutionMigration = require('./evolutionMigration');
+runEvolutionMigration();
+
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
