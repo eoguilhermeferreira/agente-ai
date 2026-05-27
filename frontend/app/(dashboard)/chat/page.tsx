@@ -31,49 +31,60 @@ function ChatContent() {
   useEffect(() => {
     if (!company?.id) return;
 
-    const backendUrl = process.env.NEXT_PUBLIC_SOCKET_URL || '';
-    if (!backendUrl) return;
+    let cancelled = false;
+    let activeSocket: Socket | null = null;
 
-    const socket = io(backendUrl, { transports: ['websocket', 'polling'] });
-    socketRef.current = socket;
+    fetch('/api/config')
+      .then(r => r.json())
+      .then(({ socketUrl }: { socketUrl: string }) => {
+        if (cancelled || !socketUrl) return;
 
-    const joinRooms = () => {
-      socket.emit('join-company', company.id);
-      if (selectedRef.current) {
-        socket.emit('join-conversation', selectedRef.current.id);
-      }
+        const socket = io(socketUrl, { transports: ['websocket', 'polling'] });
+        activeSocket = socket;
+        socketRef.current = socket;
+
+        const joinRooms = () => {
+          socket.emit('join-company', company.id);
+          if (selectedRef.current) {
+            socket.emit('join-conversation', selectedRef.current.id);
+          }
+        };
+
+        socket.on('connect', joinRooms);
+
+        socket.on('new-message', (data: { conversationId: string; message: string; fromMe: boolean; clientName?: string; clientPhone?: string }) => {
+          setConversations(prev =>
+            prev.map(c => c.id === data.conversationId
+              ? {
+                  ...c,
+                  lastMessage: data.message,
+                  unreadCount: selectedRef.current?.id === data.conversationId ? 0 : c.unreadCount + 1,
+                }
+              : c
+            )
+          );
+        });
+
+        socket.on('message', (msg: { content: string; fromMe: boolean; createdAt: string }) => {
+          setMessages(prev => [
+            ...prev,
+            {
+              id: `ws-${Date.now()}-${Math.random()}`,
+              content: msg.content,
+              fromMe: msg.fromMe,
+              type: 'TEXT' as const,
+              status: 'SENT' as const,
+              createdAt: msg.createdAt,
+            },
+          ]);
+        });
+      });
+
+    return () => {
+      cancelled = true;
+      activeSocket?.disconnect();
+      socketRef.current = null;
     };
-
-    socket.on('connect', joinRooms);
-
-    socket.on('new-message', (data: { conversationId: string; message: string; fromMe: boolean; clientName?: string; clientPhone?: string }) => {
-      setConversations(prev =>
-        prev.map(c => c.id === data.conversationId
-          ? {
-              ...c,
-              lastMessage: data.message,
-              unreadCount: selectedRef.current?.id === data.conversationId ? 0 : c.unreadCount + 1,
-            }
-          : c
-        )
-      );
-    });
-
-    socket.on('message', (msg: { content: string; fromMe: boolean; createdAt: string }) => {
-      setMessages(prev => [
-        ...prev,
-        {
-          id: `ws-${Date.now()}-${Math.random()}`,
-          content: msg.content,
-          fromMe: msg.fromMe,
-          type: 'TEXT' as const,
-          status: 'SENT' as const,
-          createdAt: msg.createdAt,
-        },
-      ]);
-    });
-
-    return () => { socket.disconnect(); };
   }, [company?.id]);
 
   useEffect(() => {
