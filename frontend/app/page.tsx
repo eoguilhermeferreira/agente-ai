@@ -25,9 +25,14 @@ export default function LandingPage() {
             <Link href="/login" className="text-sm text-gray-400 hover:text-white transition-colors px-4 py-2">
               Entrar
             </Link>
-            <Link href="/register" className="btn-wine px-5 py-2 rounded-lg text-sm font-medium glow-wine-sm">
-              Começar grátis
-            </Link>
+            <a
+              href="https://wa.me/5511923999249?text=Ol%C3%A1%21+Vim+pelo+site+do+ChatNex+e+quero+saber+como+come%C3%A7ar%21"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-wine px-5 py-2 rounded-lg text-sm font-medium glow-wine-sm"
+            >
+              Começar agora
+            </a>
           </div>
         </div>
       </nav>
@@ -61,9 +66,14 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-            <Link href="/register" className="btn-wine px-8 py-4 rounded-xl text-base font-semibold glow-wine w-full sm:w-auto text-center">
+            <a
+              href="https://wa.me/5511923999249?text=Ol%C3%A1%21+Quero+automatizar+o+atendimento+do+meu+WhatsApp+com+o+ChatNex%21+Pode+me+ajudar%3F"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-wine px-8 py-4 rounded-xl text-base font-semibold glow-wine w-full sm:w-auto text-center"
+            >
               Quero automatizar meu WhatsApp →
-            </Link>
+            </a>
             <a href="#demo" className="px-8 py-4 rounded-xl text-base font-semibold border border-[#2a2a2a] hover:border-[#A61B4D]/50 transition-all w-full sm:w-auto text-center">
               Ver demo
             </a>
@@ -517,99 +527,49 @@ export default function LandingPage() {
             <p className="text-gray-400 text-lg">Comece grátis por 7 dias. Sem cartão de crédito.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 items-start">
-            {/* Starter */}
-            <div className="card-glass rounded-2xl p-8 flex flex-col gap-4">
-              <div>
-                <p className="text-sm text-gray-400 font-medium uppercase tracking-wider mb-2">Starter</p>
-                <div className="flex items-end gap-1">
-                  <span className="text-4xl font-black">R$ 97</span>
-                  <span className="text-gray-400 mb-1">/mês</span>
+          <div className="max-w-lg mx-auto">
+            <div className="card-glass rounded-2xl p-10 flex flex-col gap-6 border-[#A61B4D]/50 glow-wine relative">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <span className="gradient-wine text-xs font-bold px-5 py-1.5 rounded-full tracking-wider">PLANO ÚNICO — TUDO INCLUSO</span>
+              </div>
+              <div className="text-center pt-2">
+                <div className="flex items-end justify-center gap-1 mb-2">
+                  <span className="text-6xl font-black">R$ 499</span>
+                  <span className="text-2xl font-bold text-gray-400 mb-2">,90<span className="text-base">/mês</span></span>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">Ideal para autônomos e pequenas empresas</p>
+                <p className="text-gray-400">Tudo que você precisa para automatizar seu atendimento de verdade</p>
               </div>
-              <div className="border-t border-[#2a2a2a] pt-4 space-y-3">
+              <div className="border-t border-[#2a2a2a] pt-6 grid grid-cols-2 gap-3">
                 {[
-                  '1 número de WhatsApp',
-                  'IA com GPT-4o',
-                  '2.000 mensagens/mês',
-                  'Chat ao vivo',
-                  'Suporte por e-mail',
-                ].map((f) => (
-                  <div key={f} className="flex items-center gap-2 text-sm text-gray-300">
-                    <span className="text-[#A61B4D]">✓</span> {f}
-                  </div>
-                ))}
-              </div>
-              <Link href="/register" className="mt-auto block text-center border border-[#A61B4D] text-[#A61B4D] hover:bg-[#A61B4D] hover:text-white transition-all py-3 rounded-xl font-semibold text-sm">
-                Começar grátis
-              </Link>
-            </div>
-
-            {/* Pro — highlighted */}
-            <div className="card-glass rounded-2xl p-8 flex flex-col gap-4 border-[#A61B4D]/50 glow-wine relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="gradient-wine text-xs font-bold px-4 py-1 rounded-full">MAIS POPULAR</span>
-              </div>
-              <div>
-                <p className="text-sm text-[#A61B4D] font-medium uppercase tracking-wider mb-2">Pro</p>
-                <div className="flex items-end gap-1">
-                  <span className="text-4xl font-black">R$ 197</span>
-                  <span className="text-gray-400 mb-1">/mês</span>
-                </div>
-                <p className="text-sm text-gray-500 mt-1">Para empresas que querem escalar de verdade</p>
-              </div>
-              <div className="border-t border-[#2a2a2a] pt-4 space-y-3">
-                {[
-                  '3 números de WhatsApp',
+                  'Números ilimitados de WhatsApp',
                   'IA com GPT-4o',
                   'Mensagens ilimitadas',
                   'Chat ao vivo',
                   'Alertas de atendimento',
-                  'Suporte prioritário',
-                ].map((f) => (
-                  <div key={f} className="flex items-center gap-2 text-sm text-gray-300">
-                    <span className="text-[#A61B4D]">✓</span> {f}
-                  </div>
-                ))}
-              </div>
-              <Link href="/register" className="mt-auto block text-center btn-wine py-3 rounded-xl font-semibold text-sm glow-wine-sm">
-                Começar grátis
-              </Link>
-            </div>
-
-            {/* Enterprise */}
-            <div className="card-glass rounded-2xl p-8 flex flex-col gap-4">
-              <div>
-                <p className="text-sm text-gray-400 font-medium uppercase tracking-wider mb-2">Enterprise</p>
-                <div className="flex items-end gap-1">
-                  <span className="text-4xl font-black">Custom</span>
-                </div>
-                <p className="text-sm text-gray-500 mt-1">Para grandes operações e múltiplas unidades</p>
-              </div>
-              <div className="border-t border-[#2a2a2a] pt-4 space-y-3">
-                {[
-                  'Números ilimitados',
-                  'IA com GPT-4o',
-                  'Mensagens ilimitadas',
                   'Multi-setor e equipes',
                   'Relatórios avançados',
+                  'Suporte prioritário',
                   'Onboarding dedicado',
-                  'SLA garantido',
+                  'Cancele a qualquer momento',
                 ].map((f) => (
                   <div key={f} className="flex items-center gap-2 text-sm text-gray-300">
-                    <span className="text-[#A61B4D]">✓</span> {f}
+                    <span className="text-[#A61B4D] shrink-0">✓</span> {f}
                   </div>
                 ))}
               </div>
-              <a href="https://wa.me/5511999999999" className="mt-auto block text-center border border-[#2a2a2a] hover:border-[#A61B4D]/50 transition-all py-3 rounded-xl font-semibold text-sm">
-                Falar com vendas
+              <a
+                href="https://wa.me/5511923999249?text=Ol%C3%A1%21+Quero+contratar+o+ChatNex+por+R%24+499%2C90%2Fm%C3%AAs+e+automatizar+meu+atendimento%21"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-wine py-4 rounded-xl font-bold text-base text-center glow-wine"
+              >
+                Quero contratar agora →
               </a>
             </div>
           </div>
 
           <p className="text-center text-xs text-gray-600 mt-8">
-            Todos os planos incluem 7 dias de teste grátis. Cancele a qualquer momento.
+            Sem taxa de adesão · Cancele a qualquer momento · Suporte em português
           </p>
         </div>
       </section>
@@ -674,9 +634,14 @@ export default function LandingPage() {
             <p className="text-gray-400 mb-8 text-lg">
               Enquanto você pensa, sua IA poderia estar fechando vendas. Comece agora em menos de 10 minutos.
             </p>
-            <Link href="/register" className="btn-wine px-10 py-4 rounded-xl text-base font-semibold inline-block glow-wine">
+            <a
+              href="https://wa.me/5511923999249?text=Ol%C3%A1%21+Quero+contratar+o+ChatNex+agora+e+automatizar+meu+atendimento+24h%21+Vamos+come%C3%A7ar%3F"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-wine px-10 py-4 rounded-xl text-base font-semibold inline-block glow-wine"
+            >
               Automatizar meu WhatsApp agora →
-            </Link>
+            </a>
             <p className="text-xs text-gray-600 mt-4">Sem cartão de crédito · Cancele quando quiser · Suporte em português</p>
           </div>
         </div>
@@ -697,8 +662,15 @@ export default function LandingPage() {
               <Link href="/login" className="hover:text-white transition-colors">Login</Link>
             </div>
             <p className="text-sm text-gray-600">
-              © 2025 ChatNex · Desenvolvido pela{' '}
-              <span className="text-[#A61B4D]">Nodex</span>
+              © 2026 ChatNex · Desenvolvido pela{' '}
+              <a
+                href="https://instagram.com/agencynodex"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#A61B4D] hover:text-white transition-colors underline underline-offset-2"
+              >
+                Nodex
+              </a>
             </p>
           </div>
         </div>
