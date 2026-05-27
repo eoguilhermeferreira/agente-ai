@@ -24,6 +24,9 @@ function ChatContent() {
   const loadedConvRef = useRef<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
   const selectedRef = useRef<Conversation | null>(null);
+  const messagesRef = useRef<Message[]>([]);
+
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
 
   useEffect(() => { selectedRef.current = selected; }, [selected]);
 
@@ -107,6 +110,24 @@ function ChatContent() {
     }
   }, [selected]);
 
+  // Polling fallback: refresh messages every 4s when a conversation is open
+  useEffect(() => {
+    if (!selected) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await api.get(`/conversations/${selected.id}/messages`);
+        const incoming: Message[] = res.data.messages;
+        // Only update if there are new messages (avoid unnecessary re-renders)
+        if (incoming.length > messagesRef.current.length) {
+          setMessages(incoming);
+        }
+      } catch {
+        // silent
+      }
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [selected?.id]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -131,6 +152,11 @@ function ChatContent() {
       setConversations((prev) =>
         prev.map((c) => (c.id === conv.id ? { ...c, unreadCount: 0 } : c))
       );
+      // Join conversation room directly here as well, in case socket was already connected
+      // when selected changed (the useEffect may have missed the window)
+      if (socketRef.current?.connected) {
+        socketRef.current.emit('join-conversation', conv.id);
+      }
     } catch (e) {
       console.error(e);
     } finally {

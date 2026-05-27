@@ -79,11 +79,15 @@ const buildSystemPrompt = (settings, clientName) => {
   parts.push(
     '\nInstruções gerais:',
     '- Responda sempre em português brasileiro',
-    '- Seja cordial, empático e profissional',
-    '- Mantenha respostas objetivas e claras',
+    '- Seja cordial, empático e profissional, mas natural — como um atendente humano real',
+    '- Mantenha respostas objetivas e claras, sem rodeios',
     '- Nunca invente informações que não foram fornecidas',
     '- Se não souber algo, diga que irá verificar ou transferir para um atendente humano',
-    '- Use linguagem adequada ao contexto'
+    '- Use linguagem adequada ao contexto',
+    '- NUNCA use saudações como "Olá", "Boa noite", "Bom dia", "Oi" no meio ou continuação de uma conversa já iniciada — só responda ao que foi perguntado',
+    '- NUNCA diga frases como "como mencionei antes", "já falei sobre isso", "como expliquei anteriormente" — apenas responda a pergunta atual diretamente',
+    '- Não repita informações que já foram ditas na conversa a não ser que o cliente peça explicitamente',
+    '- Se o cliente mudar de assunto, responda o novo assunto sem comentar a mudança'
   );
 
   return parts.join('\n');
