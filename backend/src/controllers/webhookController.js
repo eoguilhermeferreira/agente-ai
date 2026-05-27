@@ -249,26 +249,54 @@ const handleNewMessage = async (payload) => {
       });
     }
 
-    if (settings?.aiEnabled && settings?.autoReply && conversation.aiEnabled) {
-      const debounceMs = (settings.responseDelay || 5) * 1000;
+    if (settings?.aiEnabled && settings?.autoReply) {
+      // Auto-reactivate AI if conversation has been in PENDING for 10+ minutes
+      // (no outbound message from operator or AI in that window)
+      let activeConversation = conversation;
 
-      // Cancel existing timer for this contact and reset
-      const existing = pendingAI.get(remoteJid);
-      if (existing?.timer) clearTimeout(existing.timer);
-
-      const timer = setTimeout(() => {
-        pendingAI.delete(remoteJid);
-        sendAIResponse({
-          conversationId: conversation.id,
-          instanceName,
-          settings,
-          remoteJid,
-          clientName,
-          companyId: company.id,
+      if (conversation.status === 'PENDING') {
+        const lastOutbound = await prisma.message.findFirst({
+          where: { conversationId: conversation.id, fromMe: true },
+          orderBy: { createdAt: 'desc' },
         });
-      }, debounceMs);
 
-      pendingAI.set(remoteJid, { timer, conversationId: conversation.id });
+        const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
+        const lastOutboundMs = lastOutbound?.createdAt?.getTime() ?? 0;
+
+        if (lastOutboundMs < tenMinutesAgo) {
+          activeConversation = await prisma.conversation.update({
+            where: { id: conversation.id },
+            data: { status: 'OPEN', aiEnabled: true },
+          });
+          if (global.io) {
+            global.io.to(`company-${company.id}`).emit('human-resolved', {
+              conversationId: conversation.id,
+            });
+          }
+          console.log(`[AI] Reativada após 10min sem resposta — conv ${conversation.id}`);
+        }
+      }
+
+      if (activeConversation.aiEnabled) {
+        const debounceMs = (settings.responseDelay || 5) * 1000;
+
+        const existing = pendingAI.get(remoteJid);
+        if (existing?.timer) clearTimeout(existing.timer);
+
+        const timer = setTimeout(() => {
+          pendingAI.delete(remoteJid);
+          sendAIResponse({
+            conversationId: activeConversation.id,
+            instanceName,
+            settings,
+            remoteJid,
+            clientName,
+            companyId: company.id,
+          });
+        }, debounceMs);
+
+        pendingAI.set(remoteJid, { timer, conversationId: activeConversation.id });
+      }
     }
   } catch (error) {
     console.error('Erro ao processar mensagem:', error);
