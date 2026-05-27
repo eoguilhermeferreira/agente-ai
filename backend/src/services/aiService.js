@@ -36,15 +36,16 @@ const generateResponse = async ({ settings, messages, clientName }) => {
   }
 };
 
-const buildSystemPrompt = (settings, clientName) => {
-  const hasCustomPrompt = settings.systemPrompt && settings.systemPrompt.trim().length > 0;
-
-  if (hasCustomPrompt) {
-    // Custom prompt configured — use it exactly as written
-    const clientInfo = clientName ? `\nO cliente se chama ${clientName}.` : '';
-    return `${settings.systemPrompt.trim()}${clientInfo}
+const SCOPE_RULE = `
 
 REGRA ABSOLUTA: Você deve atuar EXCLUSIVAMENTE conforme as instruções acima. Se o cliente perguntar qualquer coisa que não esteja relacionada ao seu papel definido acima, responda educadamente que só pode ajudar com assuntos da empresa e redirecione a conversa. Nunca responda perguntas fora do escopo definido no seu papel.`;
+
+const buildSystemPrompt = (settings, clientName) => {
+  const hasCustomPrompt = settings.systemPrompt && settings.systemPrompt.trim().length > 0;
+  const clientInfo = clientName ? `\nO cliente se chama ${clientName}.` : '';
+
+  if (hasCustomPrompt) {
+    return `${settings.systemPrompt.trim()}${clientInfo}${SCOPE_RULE}`;
   }
 
   // No custom prompt — build from individual fields with default guardrails
@@ -59,7 +60,7 @@ REGRA ABSOLUTA: Você deve atuar EXCLUSIVAMENTE conforme as instruções acima. 
   if (settings.products) parts.push(`\n\nProdutos/Serviços disponíveis:\n${settings.products}`);
   if (settings.faq) parts.push(`\n\nPerguntas frequentes:\n${settings.faq}`);
   if (settings.aiRules) parts.push(`\n\nRegras importantes:\n${settings.aiRules}`);
-  if (clientName) parts.push(`\n\nO cliente se chama ${clientName}.`);
+  if (clientName) parts.push(clientInfo);
 
   parts.push(
     '\n\nInstruções de comportamento:',
@@ -70,6 +71,8 @@ REGRA ABSOLUTA: Você deve atuar EXCLUSIVAMENTE conforme as instruções acima. 
     '\n- Ao receber uma saudação, responda apenas com uma saudação e pergunte como pode ajudar',
     '\n- Se não souber algo, diga que vai verificar ou chamar um atendente'
   );
+
+  parts.push(SCOPE_RULE);
 
   return parts.join('');
 };
