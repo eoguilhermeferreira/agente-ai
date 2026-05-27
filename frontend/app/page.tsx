@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { ContainerScroll } from '@/components/ui/container-scroll-animation';
+import FlowArt, { FlowSection } from '@/components/ui/story-scroll';
 
 export default function LandingPage() {
   return (
@@ -81,38 +83,105 @@ export default function LandingPage() {
             ))}
           </div>
 
-          {/* Dashboard preview */}
-          <div className="relative max-w-4xl mx-auto">
-            <div className="card-glass rounded-2xl p-1 glow-wine">
-              <div className="bg-[#141414] rounded-xl overflow-hidden">
-                <div className="flex items-center gap-2 px-4 py-3 border-b border-[#2a2a2a]">
-                  <div className="w-3 h-3 rounded-full bg-[#A61B4D]" />
-                  <div className="w-3 h-3 rounded-full bg-[#7A123B]" />
-                  <div className="w-3 h-3 rounded-full bg-[#5B0E2D]" />
-                  <span className="text-xs text-gray-500 ml-2">ChatNex — Dashboard ao vivo</span>
-                  <div className="ml-auto flex items-center gap-1.5">
-                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                    <span className="text-xs text-green-400">WhatsApp conectado</span>
-                  </div>
+        </div>
+      </section>
+
+      {/* Dashboard 3D scroll animation */}
+      <section className="bg-[#0D0D0D] -mt-10">
+        <ContainerScroll
+          titleComponent={
+            <div className="mb-8">
+              <p className="text-sm text-[#A61B4D] font-medium mb-2 uppercase tracking-widest">Dashboard em tempo real</p>
+              <h2 className="text-3xl md:text-5xl font-black text-white leading-tight">
+                Tudo acontece<br />
+                <span className="text-gradient">na sua tela</span>
+              </h2>
+            </div>
+          }
+        >
+          {/* Dashboard mock inside the 3D card */}
+          <div className="h-full flex flex-col">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-[#2a2a2a] bg-[#0D0D0D]">
+              <div className="w-3 h-3 rounded-full bg-[#A61B4D]" />
+              <div className="w-3 h-3 rounded-full bg-[#7A123B]" />
+              <div className="w-3 h-3 rounded-full bg-[#5B0E2D]" />
+              <span className="text-xs text-gray-500 ml-2">ChatNex — Dashboard ao vivo</span>
+              <div className="ml-auto flex items-center gap-1.5">
+                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                <span className="text-xs text-green-400">WhatsApp conectado</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-4 gap-3 p-4 bg-[#0D0D0D]">
+              {[
+                { label: 'Conversas Hoje', value: '47', trend: '+12 novas' },
+                { label: 'Respondidas pela IA', value: '43', trend: '91% automático' },
+                { label: 'Tempo Médio', value: '< 3s', trend: 'de resposta' },
+                { label: 'Satisfação', value: '4.9★', trend: 'dos clientes' },
+              ].map((stat) => (
+                <div key={stat.label} className="bg-[#141414] rounded-lg p-3 border border-[#1a1a1a]">
+                  <p className="text-xs text-gray-500 mb-1">{stat.label}</p>
+                  <p className="text-xl font-bold text-white">{stat.value}</p>
+                  <p className="text-xs text-[#A61B4D] mt-1">{stat.trend}</p>
                 </div>
-                <div className="grid grid-cols-4 gap-4 p-6">
-                  {[
-                    { label: 'Conversas Hoje', value: '47', trend: '+12 novas' },
-                    { label: 'Respondidas pela IA', value: '43', trend: '91% automático' },
-                    { label: 'Tempo Médio', value: '< 3s', trend: 'de resposta' },
-                    { label: 'Satisfação', value: '4.9★', trend: 'dos clientes' },
-                  ].map((stat) => (
-                    <div key={stat.label} className="bg-[#0D0D0D] rounded-lg p-4 border border-[#1a1a1a]">
-                      <p className="text-xs text-gray-500 mb-1">{stat.label}</p>
-                      <p className="text-2xl font-bold text-white">{stat.value}</p>
-                      <p className="text-xs text-[#A61B4D] mt-1">{stat.trend}</p>
+              ))}
+            </div>
+            <div className="flex flex-1 gap-0 overflow-hidden">
+              {/* Conversations list */}
+              <div className="w-64 border-r border-[#1a1a1a] bg-[#0D0D0D] overflow-hidden">
+                <div className="px-3 py-2 border-b border-[#1a1a1a]">
+                  <p className="text-xs font-medium text-gray-400">Conversas recentes</p>
+                </div>
+                {[
+                  { name: 'Lucas M.', msg: 'Qual o preço do plano...', time: '14:32', active: true },
+                  { name: 'Fernanda C.', msg: 'Tem como parcelar?', time: '14:28', active: false },
+                  { name: 'Rafael A.', msg: 'Quero saber mais sobre...', time: '14:15', active: false },
+                  { name: 'Ana S.', msg: 'Obrigada pelo atendimento!', time: '13:50', active: false },
+                ].map((c) => (
+                  <div key={c.name} className={`flex items-center gap-2 px-3 py-2.5 border-b border-[#1a1a1a] ${c.active ? 'bg-[#A61B4D]/10' : ''}`}>
+                    <div className="w-7 h-7 gradient-wine rounded-full flex items-center justify-center text-xs font-bold shrink-0">
+                      {c.name[0]}
                     </div>
-                  ))}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-medium truncate">{c.name}</p>
+                      <p className="text-xs text-gray-500 truncate">{c.msg}</p>
+                    </div>
+                    <p className="text-xs text-gray-600 shrink-0">{c.time}</p>
+                  </div>
+                ))}
+              </div>
+              {/* Chat area */}
+              <div className="flex-1 bg-[#111] flex flex-col overflow-hidden">
+                <div className="px-4 py-2 border-b border-[#1a1a1a] flex items-center gap-2">
+                  <div className="w-6 h-6 gradient-wine rounded-full flex items-center justify-center text-xs font-bold">L</div>
+                  <p className="text-xs font-medium">Lucas M.</p>
+                  <span className="ml-auto text-xs text-green-400">● IA ativa</span>
+                </div>
+                <div className="flex-1 p-3 space-y-2 overflow-hidden">
+                  <div className="flex justify-start">
+                    <div className="bg-[#1a1a1a] rounded-xl px-3 py-1.5 max-w-[70%]">
+                      <p className="text-xs">Qual o preço do plano Pro?</p>
+                    </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <div className="gradient-wine rounded-xl px-3 py-1.5 max-w-[70%]">
+                      <p className="text-xs">O plano Pro é R$ 197/mês com mensagens ilimitadas! 🚀</p>
+                    </div>
+                  </div>
+                  <div className="flex justify-start">
+                    <div className="bg-[#1a1a1a] rounded-xl px-3 py-1.5 max-w-[70%]">
+                      <p className="text-xs">Tem teste grátis?</p>
+                    </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <div className="gradient-wine rounded-xl px-3 py-1.5 max-w-[70%]">
+                      <p className="text-xs">Sim! 7 dias grátis sem cartão 😊</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </ContainerScroll>
       </section>
 
       {/* Demo — AI chat mock */}
@@ -361,6 +430,82 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Story scroll — Por que o ChatNex */}
+      <FlowArt aria-label="Por que o ChatNex">
+        <FlowSection aria-label="O problema" style={{ backgroundColor: '#A61B4D', color: '#fff' }}>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-70">01 — O problema</p>
+          <hr className="my-[2vw] border-t border-white/30" />
+          <div>
+            <h2 className="text-[clamp(3rem,10vw,11rem)] font-black leading-[0.85] uppercase tracking-tight">
+              Clientes<br />
+              Esperando.<br />
+              Vendas<br />
+              Perdidas.
+            </h2>
+          </div>
+          <hr className="my-[2vw] border-t border-white/30" />
+          <p className="mt-auto max-w-[50ch] text-[clamp(1rem,2.5vw,1.75rem)] font-normal leading-relaxed opacity-90">
+            Sem você no celular 24h por dia, seus clientes vão embora. A concorrência responde primeiro e fecha a venda. Você trabalha mais e ganha menos.
+          </p>
+        </FlowSection>
+
+        <FlowSection aria-label="A solução" style={{ backgroundColor: '#0D0D0D', color: '#fff' }}>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#A61B4D]">02 — A solução</p>
+          <hr className="my-[2vw] border-t border-[#2a2a2a]" />
+          <div>
+            <h2 className="text-[clamp(3rem,10vw,11rem)] font-black leading-[0.85] uppercase tracking-tight">
+              IA que<br />
+              Trabalha<br />
+              Por Você.
+            </h2>
+          </div>
+          <hr className="my-[2vw] border-t border-[#2a2a2a]" />
+          <div className="flex flex-wrap gap-[3vw]">
+            {[
+              { title: 'Responde em 3 segundos', desc: 'Não importa o horário. A IA nunca descansa, nunca fica mal-humorada.' },
+              { title: 'Conhece seu negócio', desc: 'Configurada com seus produtos, preços e regras. Fala só sobre a sua empresa.' },
+              { title: 'Chama você quando precisa', desc: 'Situações complexas? A IA avisa na hora e passa para atendimento humano.' },
+            ].map((item) => (
+              <div key={item.title} className="min-w-[200px] flex-1">
+                <p className="mb-2 text-sm font-bold uppercase tracking-wider text-[#A61B4D]">{item.title}</p>
+                <p className="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-60">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+          <hr className="my-[2vw] border-t border-[#2a2a2a]" />
+          <p className="mt-auto ml-auto max-w-[50ch] text-right text-[clamp(1rem,2.5vw,1.75rem)] font-normal leading-relaxed opacity-80">
+            Enquanto você dorme, sua IA está fechando vendas.
+          </p>
+        </FlowSection>
+
+        <FlowSection aria-label="Os resultados" style={{ backgroundColor: '#141414', color: '#fff' }}>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#A61B4D]">03 — Os resultados</p>
+          <hr className="my-[2vw] border-t border-[#2a2a2a]" />
+          <div>
+            <h2 className="text-[clamp(3rem,10vw,11rem)] font-black leading-[0.85] uppercase tracking-tight">
+              Mais<br />
+              Vendas.<br />
+              Menos<br />
+              Trabalho.
+            </h2>
+          </div>
+          <hr className="my-[2vw] border-t border-[#2a2a2a]" />
+          <div className="flex flex-wrap gap-[3vw]">
+            {[
+              { value: '3x', label: 'Mais conversões', desc: 'Empresas que respondem em menos de 1 minuto convertem 3x mais.' },
+              { value: '90%', label: 'Atendimento automático', desc: 'A grande maioria das dúvidas é resolvida pela IA sem precisar de você.' },
+              { value: '10min', label: 'Para configurar', desc: 'Sem técnico, sem complicação. Você mesmo configura em minutos.' },
+            ].map((item) => (
+              <div key={item.label} className="min-w-[200px] flex-1">
+                <p className="text-[clamp(2rem,5vw,4rem)] font-black text-[#A61B4D] leading-none">{item.value}</p>
+                <p className="mb-2 text-sm font-bold uppercase tracking-wider mt-2">{item.label}</p>
+                <p className="text-[clamp(0.85rem,1.3vw,1.05rem)] leading-relaxed opacity-60">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </FlowSection>
+      </FlowArt>
 
       {/* Pricing */}
       <section id="pricing" className="py-24 px-6 bg-[#0a0a0a]">
