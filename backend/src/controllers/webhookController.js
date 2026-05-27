@@ -53,22 +53,17 @@ const sendAIResponse = async ({ conversationId, instanceName, settings, remoteJi
       global.io.to(`company-${companyId}`).emit('typing', { conversationId });
     }
 
+    // Fetch the most recent 20 messages (newest first, then reverse for chronological order)
     const messages = await prisma.message.findMany({
       where: { conversationId },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: 'desc' },
       take: 20,
     });
-
-    const lastUserMessages = messages
-      .filter(m => !m.fromMe)
-      .slice(-5)
-      .map(m => m.content)
-      .join('\n');
+    messages.reverse();
 
     const aiResponse = await aiService.generateResponse({
       settings,
       messages,
-      newMessage: lastUserMessages,
       clientName,
     });
 

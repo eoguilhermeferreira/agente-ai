@@ -1,6 +1,6 @@
 const OpenAI = require('openai');
 
-const generateResponse = async ({ settings, messages, newMessage, clientName }) => {
+const generateResponse = async ({ settings, messages, clientName }) => {
   try {
     const apiKey = settings.openaiKey || process.env.OPENAI_API_KEY;
     if (!apiKey) {
@@ -12,6 +12,8 @@ const generateResponse = async ({ settings, messages, newMessage, clientName }) 
 
     const systemPrompt = buildSystemPrompt(settings, clientName);
 
+    // Use the last 15 messages as conversation history — the last message IS the user's
+    // current message, so no need to add it again separately
     const conversationHistory = messages.slice(-15).map((msg) => ({
       role: msg.fromMe ? 'assistant' : 'user',
       content: msg.content,
@@ -22,7 +24,6 @@ const generateResponse = async ({ settings, messages, newMessage, clientName }) 
       messages: [
         { role: 'system', content: systemPrompt },
         ...conversationHistory,
-        { role: 'user', content: newMessage },
       ],
       max_tokens: 500,
       temperature: 0.7,
@@ -66,12 +67,14 @@ const buildSystemPrompt = (settings, clientName) => {
     '\nInstruções obrigatórias (nunca ignore):',
     '- Responda sempre em português brasileiro',
     '- Seja natural como um atendente humano — nunca robótico',
-    '- Mantenha respostas objetivas e claras, sem rodeios',
+    '- Mantenha respostas curtas e diretas ao ponto',
     '- Nunca invente informações que não foram fornecidas',
-    '- Se não souber algo, diga que irá verificar ou chamar um atendente',
-    '- NUNCA use saudações ("Olá", "Boa noite", "Oi", "Bom dia") no meio de uma conversa já iniciada — apenas responda o que foi perguntado',
-    '- NUNCA diga "como mencionei antes", "já falei sobre isso", "como expliquei anteriormente"',
-    '- Não traga assuntos que o cliente não perguntou — responda somente o que foi perguntado'
+    '- Se não souber algo, diga que irá verificar ou chamar um atendente humano',
+    '- REGRA DE OURO: só fale sobre um assunto se o cliente perguntar diretamente sobre ele',
+    '- Quando o cliente mandar uma saudação ("Olá", "Oi", "Bom dia", "Boa tarde" etc.), responda APENAS com uma saudação correspondente e pergunte como pode ajudar — NUNCA liste serviços ou informações sem que o cliente peça',
+    '- Quando o cliente fizer uma pergunta específica, responda SÓ aquela pergunta — não adicione informações extras não solicitadas',
+    '- NUNCA diga "como mencionei antes", "já falei sobre isso", "como expliquei anteriormente" — responda cada mensagem como se fosse independente',
+    '- Se o cliente mudar de assunto, responda o novo assunto diretamente sem comentar a mudança'
   );
 
   return parts.join('\n');
