@@ -3,36 +3,58 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
-import { Settings } from '@/types';
+
+interface VisibleSettings {
+  aiEnabled: boolean;
+  autoReply: boolean;
+  responseDelay: number;
+  systemPrompt: string;
+  products: string;
+  faq: string;
+  aiRules: string;
+  businessName: string;
+  businessHours: string;
+  businessAddress: string;
+  businessPhone: string;
+}
 
 export default function SettingsPage() {
-  const [settings, setSettings] = useState<Settings>({
-    openaiKey: '',
-    openaiModel: 'gpt-4o-mini',
+  const [settings, setSettings] = useState<VisibleSettings>({
     aiEnabled: true,
     autoReply: true,
     responseDelay: 2,
-    businessName: '',
-    businessHours: '',
-    businessAddress: '',
-    businessPhone: '',
     systemPrompt: '',
     products: '',
     faq: '',
     aiRules: '',
-    evolutionApiUrl: '',
-    evolutionApiKey: '',
+    businessName: '',
+    businessHours: '',
+    businessAddress: '',
+    businessPhone: '',
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'ai' | 'company' | 'integration'>('ai');
+  const [activeTab, setActiveTab] = useState<'ai' | 'company'>('ai');
 
   useEffect(() => {
     const load = async () => {
       try {
         const res = await api.get('/settings');
         if (res.data.settings) {
-          setSettings((prev) => ({ ...prev, ...res.data.settings }));
+          const s = res.data.settings;
+          setSettings({
+            aiEnabled: s.aiEnabled ?? true,
+            autoReply: s.autoReply ?? true,
+            responseDelay: s.responseDelay ?? 2,
+            systemPrompt: s.systemPrompt || '',
+            products: s.products || '',
+            faq: s.faq || '',
+            aiRules: s.aiRules || '',
+            businessName: s.businessName || '',
+            businessHours: s.businessHours || '',
+            businessAddress: s.businessAddress || '',
+            businessPhone: s.businessPhone || '',
+          });
         }
       } catch (e) {
         console.error(e);
@@ -46,6 +68,7 @@ export default function SettingsPage() {
   const save = async () => {
     setSaving(true);
     try {
+      // Only send fields visible on this page — never touch keys or integrations
       await api.put('/settings', settings);
       toast.success('Configurações salvas!');
     } catch {
@@ -55,7 +78,7 @@ export default function SettingsPage() {
     }
   };
 
-  const update = (key: keyof Settings, value: unknown) => {
+  const update = (key: keyof VisibleSettings, value: unknown) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -70,14 +93,13 @@ export default function SettingsPage() {
   const tabs = [
     { key: 'ai', label: '🤖 Inteligência Artificial' },
     { key: 'company', label: '🏢 Dados da Empresa' },
-    { key: 'integration', label: '🔗 Integrações' },
   ] as const;
 
   return (
     <div className="p-8 max-w-4xl">
       <div className="mb-8">
         <h1 className="text-2xl font-bold">Configurações</h1>
-        <p className="text-gray-400 mt-1">Configure a IA, dados da empresa e integrações</p>
+        <p className="text-gray-400 mt-1">Configure a IA e os dados da empresa</p>
       </div>
 
       {/* Tabs */}
@@ -127,46 +149,19 @@ export default function SettingsPage() {
               ))}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Modelo OpenAI</label>
-                <select
-                  value={settings.openaiModel}
-                  onChange={(e) => update('openaiModel', e.target.value)}
-                  className="input-dark w-full rounded-lg px-4 py-2.5 text-sm"
-                >
-                  <option value="gpt-4o-mini">GPT-4o Mini (Rápido e econômico)</option>
-                  <option value="gpt-4o">GPT-4o (Mais inteligente)</option>
-                  <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Legado)</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Delay de resposta (segundos)
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  max={30}
-                  value={settings.responseDelay}
-                  onChange={(e) => update('responseDelay', parseInt(e.target.value))}
-                  className="input-dark w-full rounded-lg px-4 py-2.5 text-sm"
-                />
-              </div>
-            </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Chave OpenAI</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Delay de resposta (segundos)
+              </label>
               <input
-                type="password"
-                value={settings.openaiKey || ''}
-                onChange={(e) => update('openaiKey', e.target.value)}
-                placeholder="sk-..."
-                className="input-dark w-full rounded-lg px-4 py-2.5 text-sm"
+                type="number"
+                min={0}
+                max={30}
+                value={settings.responseDelay}
+                onChange={(e) => update('responseDelay', parseInt(e.target.value))}
+                className="input-dark w-48 rounded-lg px-4 py-2.5 text-sm"
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Obtenha em: platform.openai.com/api-keys
-              </p>
+              <p className="text-xs text-gray-500 mt-1">Tempo de espera antes de enviar a resposta</p>
             </div>
 
             <div>
@@ -174,12 +169,15 @@ export default function SettingsPage() {
                 Prompt do sistema (instruções da IA)
               </label>
               <textarea
-                value={settings.systemPrompt || ''}
+                value={settings.systemPrompt}
                 onChange={(e) => update('systemPrompt', e.target.value)}
                 rows={4}
                 placeholder="Você é um atendente virtual da empresa X. Responda sempre de forma educada e profissional..."
                 className="input-dark w-full rounded-lg px-4 py-2.5 text-sm resize-none"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Defina a personalidade e o comportamento da IA. Quando preenchido, este campo tem prioridade sobre tudo.
+              </p>
             </div>
 
             <div>
@@ -187,7 +185,7 @@ export default function SettingsPage() {
                 Produtos e Serviços
               </label>
               <textarea
-                value={settings.products || ''}
+                value={settings.products}
                 onChange={(e) => update('products', e.target.value)}
                 rows={4}
                 placeholder="Liste seus produtos e serviços com preços e descrições..."
@@ -200,7 +198,7 @@ export default function SettingsPage() {
                 Perguntas Frequentes (FAQ)
               </label>
               <textarea
-                value={settings.faq || ''}
+                value={settings.faq}
                 onChange={(e) => update('faq', e.target.value)}
                 rows={4}
                 placeholder="P: Como faço um pedido?\nR: Você pode fazer seu pedido via WhatsApp..."
@@ -213,10 +211,10 @@ export default function SettingsPage() {
                 Regras da IA
               </label>
               <textarea
-                value={settings.aiRules || ''}
+                value={settings.aiRules}
                 onChange={(e) => update('aiRules', e.target.value)}
                 rows={3}
-                placeholder="- Nunca mencionar concorrentes&#10;- Sempre oferecer o cardápio quando perguntado sobre preços&#10;- Em caso de reclamações, passar para atendente humano"
+                placeholder="- Nunca mencionar concorrentes&#10;- Em caso de reclamações, chamar atendente humano"
                 className="input-dark w-full rounded-lg px-4 py-2.5 text-sm resize-none"
               />
             </div>
@@ -229,7 +227,7 @@ export default function SettingsPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Nome da empresa</label>
                 <input
-                  value={settings.businessName || ''}
+                  value={settings.businessName}
                   onChange={(e) => update('businessName', e.target.value)}
                   placeholder="Minha Empresa"
                   className="input-dark w-full rounded-lg px-4 py-2.5 text-sm"
@@ -238,7 +236,7 @@ export default function SettingsPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Telefone</label>
                 <input
-                  value={settings.businessPhone || ''}
+                  value={settings.businessPhone}
                   onChange={(e) => update('businessPhone', e.target.value)}
                   placeholder="+55 11 99999-9999"
                   className="input-dark w-full rounded-lg px-4 py-2.5 text-sm"
@@ -249,7 +247,7 @@ export default function SettingsPage() {
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Endereço</label>
               <input
-                value={settings.businessAddress || ''}
+                value={settings.businessAddress}
                 onChange={(e) => update('businessAddress', e.target.value)}
                 placeholder="Rua X, 123 - Bairro - Cidade/UF"
                 className="input-dark w-full rounded-lg px-4 py-2.5 text-sm"
@@ -259,41 +257,9 @@ export default function SettingsPage() {
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Horário de funcionamento</label>
               <input
-                value={settings.businessHours || ''}
+                value={settings.businessHours}
                 onChange={(e) => update('businessHours', e.target.value)}
                 placeholder="Seg-Sex: 8h às 18h | Sáb: 9h às 13h | Dom: fechado"
-                className="input-dark w-full rounded-lg px-4 py-2.5 text-sm"
-              />
-            </div>
-          </>
-        )}
-
-        {activeTab === 'integration' && (
-          <>
-            <div className="p-4 bg-[#141414] rounded-lg border border-[#A61B4D]/20">
-              <h3 className="font-medium mb-1">Evolution API</h3>
-              <p className="text-xs text-gray-400">Configure a integração com a Evolution API para o WhatsApp</p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">URL da Evolution API</label>
-              <input
-                value={settings.evolutionApiUrl || ''}
-                onChange={(e) => update('evolutionApiUrl', e.target.value)}
-                placeholder="https://sua-evolution-api.com"
-                className="input-dark w-full rounded-lg px-4 py-2.5 text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Chave da Evolution API
-              </label>
-              <input
-                type="password"
-                value={settings.evolutionApiKey || ''}
-                onChange={(e) => update('evolutionApiKey', e.target.value)}
-                placeholder="sua-chave-evolution"
                 className="input-dark w-full rounded-lg px-4 py-2.5 text-sm"
               />
             </div>

@@ -32,8 +32,6 @@ router.get('/', async (req, res) => {
 router.put('/', async (req, res) => {
   try {
     const {
-      openaiKey,
-      openaiModel,
       aiEnabled,
       autoReply,
       responseDelay,
@@ -45,16 +43,16 @@ router.put('/', async (req, res) => {
       products,
       faq,
       aiRules,
-      evolutionApiUrl,
-      evolutionApiKey,
     } = req.body;
 
     const existing = await prisma.settings.findUnique({
       where: { companyId: req.companyId },
     });
 
+    // Only update the fields the settings page can touch.
+    // Sensitive fields (openaiKey, openaiModel, evolutionApiUrl, evolutionApiKey)
+    // are intentionally excluded — they can only be changed via direct backend access.
     const data = {
-      openaiModel,
       aiEnabled,
       autoReply,
       responseDelay,
@@ -66,20 +64,7 @@ router.put('/', async (req, res) => {
       products,
       faq,
       aiRules,
-      evolutionApiUrl,
     };
-
-    if (openaiKey === '' || openaiKey === null) {
-      data.openaiKey = null;
-    } else if (openaiKey && !openaiKey.startsWith('***')) {
-      data.openaiKey = openaiKey;
-    }
-
-    if (evolutionApiKey === '' || evolutionApiKey === null) {
-      data.evolutionApiKey = null;
-    } else if (evolutionApiKey && !evolutionApiKey.startsWith('***')) {
-      data.evolutionApiKey = evolutionApiKey;
-    }
 
     const settings = existing
       ? await prisma.settings.update({
