@@ -40,10 +40,11 @@ const buildSystemPrompt = (settings, clientName) => {
   const hasCustomPrompt = settings.systemPrompt && settings.systemPrompt.trim().length > 0;
 
   if (hasCustomPrompt) {
-    // Custom prompt configured — use it exactly as written, no additions
-    const parts = [settings.systemPrompt.trim()];
-    if (clientName) parts.push(`\nO cliente se chama ${clientName}.`);
-    return parts.join('');
+    // Custom prompt configured — use it exactly as written
+    const clientInfo = clientName ? `\nO cliente se chama ${clientName}.` : '';
+    return `${settings.systemPrompt.trim()}${clientInfo}
+
+REGRA ABSOLUTA: Você deve atuar EXCLUSIVAMENTE conforme as instruções acima. Se o cliente perguntar qualquer coisa que não esteja relacionada ao seu papel definido acima, responda educadamente que só pode ajudar com assuntos da empresa e redirecione a conversa. Nunca responda perguntas fora do escopo definido no seu papel.`;
   }
 
   // No custom prompt — build from individual fields with default guardrails
