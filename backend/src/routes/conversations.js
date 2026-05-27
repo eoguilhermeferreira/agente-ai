@@ -111,6 +111,11 @@ router.post('/:id/send', async (req, res) => {
         fromMe: true,
         createdAt: new Date(),
       });
+      global.io.to(`company-${req.companyId}`).emit('new-message', {
+        conversationId: conversation.id,
+        message,
+        fromMe: true,
+      });
     }
 
     res.json({ message: savedMessage });

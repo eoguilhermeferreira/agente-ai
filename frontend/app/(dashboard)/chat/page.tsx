@@ -20,6 +20,7 @@ function ChatContent() {
   const [sending, setSending] = useState(false);
   const [loadingConvs, setLoadingConvs] = useState(true);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const loadedConvRef = useRef<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
@@ -28,7 +29,10 @@ function ChatContent() {
 
   useEffect(() => { messagesRef.current = messages; }, [messages]);
 
-  useEffect(() => { selectedRef.current = selected; }, [selected]);
+  useEffect(() => {
+    selectedRef.current = selected;
+    setIsTyping(false);
+  }, [selected]);
 
   // Socket.io — connects once company is loaded
   useEffect(() => {
@@ -69,6 +73,7 @@ function ChatContent() {
         });
 
         socket.on('message', (msg: { content: string; fromMe: boolean; createdAt: string }) => {
+          setIsTyping(false);
           setMessages(prev => [
             ...prev,
             {
@@ -80,6 +85,18 @@ function ChatContent() {
               createdAt: msg.createdAt,
             },
           ]);
+        });
+
+        socket.on('typing', (data: { conversationId: string }) => {
+          if (selectedRef.current?.id === data.conversationId) {
+            setIsTyping(true);
+          }
+        });
+
+        socket.on('stop-typing', (data: { conversationId: string }) => {
+          if (selectedRef.current?.id === data.conversationId) {
+            setIsTyping(false);
+          }
         });
       });
 
@@ -288,7 +305,11 @@ function ChatContent() {
                 </div>
                 <div>
                   <p className="font-medium">{selected.clientName || selected.clientPhone}</p>
-                  <p className="text-xs text-gray-500">{selected.clientPhone}</p>
+                  {isTyping ? (
+                    <p className="text-xs text-[#A61B4D] animate-pulse">IA digitando...</p>
+                  ) : (
+                    <p className="text-xs text-gray-500">{selected.clientPhone}</p>
+                  )}
                 </div>
               </div>
               <button
@@ -333,6 +354,17 @@ function ChatContent() {
                     </div>
                   </div>
                 ))
+              )}
+              {isTyping && (
+                <div className="flex justify-start">
+                  <div className="bg-[#1a1a1a] rounded-2xl rounded-bl-sm px-4 py-3">
+                    <div className="flex items-center gap-1">
+                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                  </div>
+                </div>
               )}
               <div ref={messagesEndRef} />
             </div>

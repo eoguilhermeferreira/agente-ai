@@ -47,6 +47,12 @@ const handleEvolutionWebhook = async (req, res) => {
 
 const sendAIResponse = async ({ conversationId, instanceName, settings, remoteJid, clientName, companyId }) => {
   try {
+    // Show typing indicator while AI thinks and sends
+    if (global.io) {
+      global.io.to(`conv-${conversationId}`).emit('typing', { conversationId });
+      global.io.to(`company-${companyId}`).emit('typing', { conversationId });
+    }
+
     const messages = await prisma.message.findMany({
       where: { conversationId },
       orderBy: { createdAt: 'asc' },
@@ -66,7 +72,13 @@ const sendAIResponse = async ({ conversationId, instanceName, settings, remoteJi
       clientName,
     });
 
-    if (!aiResponse) return;
+    if (!aiResponse) {
+      if (global.io) {
+        global.io.to(`conv-${conversationId}`).emit('stop-typing', { conversationId });
+        global.io.to(`company-${companyId}`).emit('stop-typing', { conversationId });
+      }
+      return;
+    }
 
     // Split response into short paragraphs and send each with delay
     const chunks = aiResponse
@@ -128,6 +140,11 @@ const sendAIResponse = async ({ conversationId, instanceName, settings, remoteJi
       });
     }
 
+    if (global.io) {
+      global.io.to(`conv-${conversationId}`).emit('stop-typing', { conversationId });
+      global.io.to(`company-${companyId}`).emit('stop-typing', { conversationId });
+    }
+
     if (needsHumanHandoff(aiResponse)) {
       await prisma.conversation.update({
         where: { id: conversationId },
@@ -144,6 +161,10 @@ const sendAIResponse = async ({ conversationId, instanceName, settings, remoteJi
     }
   } catch (error) {
     console.error('Erro ao gerar/enviar resposta IA:', error);
+    if (global.io) {
+      global.io.to(`conv-${conversationId}`).emit('stop-typing', { conversationId });
+      global.io.to(`company-${companyId}`).emit('stop-typing', { conversationId });
+    }
   }
 };
 
