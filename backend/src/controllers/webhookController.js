@@ -250,11 +250,11 @@ const handleNewMessage = async (payload) => {
     }
 
     if (settings?.aiEnabled && settings?.autoReply) {
-      // Auto-reactivate AI if conversation has been in PENDING for 10+ minutes
-      // (no outbound message from operator or AI in that window)
       let activeConversation = conversation;
 
-      if (conversation.status === 'PENDING') {
+      // Auto-reactivate AI if it was disabled (handoff) and no outbound
+      // message has been sent in the last 10 minutes
+      if (!conversation.aiEnabled) {
         const lastOutbound = await prisma.message.findFirst({
           where: { conversationId: conversation.id, fromMe: true },
           orderBy: { createdAt: 'desc' },

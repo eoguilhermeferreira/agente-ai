@@ -157,7 +157,7 @@ router.patch('/:id/resolve', async (req, res) => {
 
     await prisma.conversation.update({
       where: { id: conversation.id },
-      data: { status: 'OPEN' },
+      data: { status: 'OPEN', aiEnabled: true },
     });
 
     if (global.io) {
