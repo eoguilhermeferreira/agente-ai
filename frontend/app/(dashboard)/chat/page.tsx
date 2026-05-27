@@ -4,12 +4,14 @@ import { useEffect, useState, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { io, Socket } from 'socket.io-client';
 import api from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 import { Conversation, Message } from '@/types';
 import toast from 'react-hot-toast';
 
 function ChatContent() {
   const searchParams = useSearchParams();
   const selectedId = searchParams.get('id');
+  const { company } = useAuth();
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selected, setSelected] = useState<Conversation | null>(null);
@@ -23,65 +25,56 @@ function ChatContent() {
   const socketRef = useRef<Socket | null>(null);
   const selectedRef = useRef<Conversation | null>(null);
 
-  // Keep selectedRef in sync
-  useEffect(() => {
-    selectedRef.current = selected;
-  }, [selected]);
+  useEffect(() => { selectedRef.current = selected; }, [selected]);
 
-  // Socket.io connection
+  // Socket.io — connects once company is loaded
   useEffect(() => {
+    if (!company?.id) return;
+
     const backendUrl = process.env.NEXT_PUBLIC_SOCKET_URL || '';
-    const token = localStorage.getItem('chatnex_token');
-    if (!token) return;
+    if (!backendUrl) return;
 
     const socket = io(backendUrl, { transports: ['websocket', 'polling'] });
     socketRef.current = socket;
 
-    // Parse companyId from JWT token
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      if (payload.companyId) {
-        socket.emit('join-company', payload.companyId);
+    const joinRooms = () => {
+      socket.emit('join-company', company.id);
+      if (selectedRef.current) {
+        socket.emit('join-conversation', selectedRef.current.id);
       }
-    } catch {}
+    };
 
-    // New message received
+    socket.on('connect', joinRooms);
+
     socket.on('new-message', (data: { conversationId: string; message: string; fromMe: boolean; clientName?: string; clientPhone?: string }) => {
-      // Update conversation list
       setConversations(prev =>
         prev.map(c => c.id === data.conversationId
-          ? { ...c, lastMessage: data.message, unreadCount: selectedRef.current?.id === data.conversationId ? c.unreadCount : c.unreadCount + 1 }
+          ? {
+              ...c,
+              lastMessage: data.message,
+              unreadCount: selectedRef.current?.id === data.conversationId ? 0 : c.unreadCount + 1,
+            }
           : c
         )
       );
     });
 
-    // Message in open conversation
     socket.on('message', (msg: { content: string; fromMe: boolean; createdAt: string }) => {
       setMessages(prev => [
         ...prev,
         {
-          id: `socket-${Date.now()}-${Math.random()}`,
+          id: `ws-${Date.now()}-${Math.random()}`,
           content: msg.content,
           fromMe: msg.fromMe,
-          type: 'TEXT',
-          status: 'SENT',
+          type: 'TEXT' as const,
+          status: 'SENT' as const,
           createdAt: msg.createdAt,
         },
       ]);
     });
 
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
-  // Join conversation room when selected changes
-  useEffect(() => {
-    if (selected && socketRef.current) {
-      socketRef.current.emit('join-conversation', selected.id);
-    }
-  }, [selected]);
+    return () => { socket.disconnect(); };
+  }, [company?.id]);
 
   useEffect(() => {
     loadConversations();
@@ -96,6 +89,12 @@ function ChatContent() {
       }
     }
   }, [selectedId, conversations]);
+
+  useEffect(() => {
+    if (selected && socketRef.current?.connected) {
+      socketRef.current.emit('join-conversation', selected.id);
+    }
+  }, [selected]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
