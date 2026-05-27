@@ -2,9 +2,10 @@ import Link from 'next/link';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#0D0D0D] text-white">
+    <div className="min-h-screen bg-[#0D0D0D] text-white overflow-x-hidden">
+
       {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 bg-[#0D0D0D]/80 backdrop-blur-lg border-b border-[#1a1a1a]">
+      <nav className="fixed top-0 w-full z-50 bg-[#0D0D0D]/90 backdrop-blur-lg border-b border-[#1a1a1a]">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg gradient-wine flex items-center justify-center text-sm font-bold">
@@ -14,14 +15,15 @@ export default function LandingPage() {
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-gray-400">
             <a href="#features" className="hover:text-white transition-colors">Recursos</a>
-            <a href="#how" className="hover:text-white transition-colors">Como funciona</a>
+            <a href="#demo" className="hover:text-white transition-colors">Demo</a>
+            <a href="#pricing" className="hover:text-white transition-colors">Preços</a>
             <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/login" className="text-sm text-gray-400 hover:text-white transition-colors px-4 py-2">
               Entrar
             </Link>
-            <Link href="/register" className="btn-wine px-5 py-2 rounded-lg text-sm font-medium">
+            <Link href="/register" className="btn-wine px-5 py-2 rounded-lg text-sm font-medium glow-wine-sm">
               Começar grátis
             </Link>
           </div>
@@ -30,37 +32,56 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="relative pt-32 pb-20 px-6 overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#A61B4D]/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[#5B0E2D]/20 rounded-full blur-3xl animate-pulse" style={{animationDelay:'1s'}} />
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] bg-[#A61B4D]/8 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-[#5B0E2D]/15 rounded-full blur-[100px]" />
         </div>
 
         <div className="relative max-w-5xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-[#1a1a1a] border border-[#A61B4D]/30 rounded-full px-4 py-2 text-sm text-[#A61B4D] mb-8 glow-wine-sm">
             <span className="w-2 h-2 bg-[#A61B4D] rounded-full animate-pulse" />
-            Powered by OpenAI GPT-4o
+            Powered by OpenAI GPT-4o — sem fila, sem espera
           </div>
 
           <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight tracking-tight">
-            Atendimento com IA<br />
-            <span className="text-gradient">no WhatsApp</span>
+            Atendimento 100%<br />
+            automatizado no seu<br />
+            <span className="text-gradient">WhatsApp!</span>
           </h1>
 
-          <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Automatize o atendimento da sua empresa com inteligência artificial.
-            Responda clientes 24/7, escale seu suporte e nunca perca uma oportunidade de venda.
+          <p className="text-xl text-gray-400 mb-4 max-w-2xl mx-auto leading-relaxed">
+            Pare de perder vendas por demora no atendimento. Sua IA responde clientes 24/7,
+            qualifica leads e só te chama quando realmente precisa.
+          </p>
+
+          <p className="text-sm text-[#A61B4D] font-medium mb-10">
+            ✓ Sem precisar ficar no celular &nbsp;·&nbsp; ✓ Sem perder cliente &nbsp;·&nbsp; ✓ Configura em minutos
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-            <Link href="/register" className="btn-wine px-8 py-4 rounded-xl text-base font-semibold glow-wine">
-              Começar gratuitamente →
+            <Link href="/register" className="btn-wine px-8 py-4 rounded-xl text-base font-semibold glow-wine w-full sm:w-auto text-center">
+              Quero automatizar meu WhatsApp →
             </Link>
-            <Link href="/login" className="px-8 py-4 rounded-xl text-base font-semibold border border-[#2a2a2a] hover:border-[#A61B4D]/50 transition-all">
-              Fazer login
-            </Link>
+            <a href="#demo" className="px-8 py-4 rounded-xl text-base font-semibold border border-[#2a2a2a] hover:border-[#A61B4D]/50 transition-all w-full sm:w-auto text-center">
+              Ver demo
+            </a>
           </div>
 
-          {/* Mock dashboard preview */}
+          {/* Social proof numbers */}
+          <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto mb-16">
+            {[
+              { value: '+500', label: 'Empresas ativas' },
+              { value: '99,9%', label: 'Uptime garantido' },
+              { value: '24/7', label: 'Atendimento ativo' },
+            ].map((s) => (
+              <div key={s.label} className="text-center">
+                <p className="text-3xl font-black text-gradient">{s.value}</p>
+                <p className="text-sm text-gray-500 mt-1">{s.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Dashboard preview */}
           <div className="relative max-w-4xl mx-auto">
             <div className="card-glass rounded-2xl p-1 glow-wine">
               <div className="bg-[#141414] rounded-xl overflow-hidden">
@@ -68,22 +89,133 @@ export default function LandingPage() {
                   <div className="w-3 h-3 rounded-full bg-[#A61B4D]" />
                   <div className="w-3 h-3 rounded-full bg-[#7A123B]" />
                   <div className="w-3 h-3 rounded-full bg-[#5B0E2D]" />
-                  <span className="text-xs text-gray-500 ml-2">ChatNex Dashboard</span>
+                  <span className="text-xs text-gray-500 ml-2">ChatNex — Dashboard ao vivo</span>
+                  <div className="ml-auto flex items-center gap-1.5">
+                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                    <span className="text-xs text-green-400">WhatsApp conectado</span>
+                  </div>
                 </div>
                 <div className="grid grid-cols-4 gap-4 p-6">
                   {[
-                    { label: 'Conversas', value: '2.847', trend: '+12%' },
-                    { label: 'Mensagens Hoje', value: '483', trend: '+8%' },
-                    { label: 'Taxa de Resposta', value: '99.2%', trend: '+0.3%' },
-                    { label: 'Satisfação', value: '4.9/5', trend: '+0.1' },
+                    { label: 'Conversas Hoje', value: '47', trend: '+12 novas' },
+                    { label: 'Respondidas pela IA', value: '43', trend: '91% automático' },
+                    { label: 'Tempo Médio', value: '< 3s', trend: 'de resposta' },
+                    { label: 'Satisfação', value: '4.9★', trend: 'dos clientes' },
                   ].map((stat) => (
                     <div key={stat.label} className="bg-[#0D0D0D] rounded-lg p-4 border border-[#1a1a1a]">
                       <p className="text-xs text-gray-500 mb-1">{stat.label}</p>
                       <p className="text-2xl font-bold text-white">{stat.value}</p>
-                      <p className="text-xs text-green-400 mt-1">{stat.trend}</p>
+                      <p className="text-xs text-[#A61B4D] mt-1">{stat.trend}</p>
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Demo — AI chat mock */}
+      <section id="demo" className="py-24 px-6 bg-[#0a0a0a]">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">
+              Veja a IA <span className="text-gradient">em ação</span>
+            </h2>
+            <p className="text-gray-400 text-lg">Seu cliente manda, a IA responde — na hora, 24 horas por dia</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            {/* Benefits list */}
+            <div className="space-y-6">
+              {[
+                {
+                  icon: '⚡',
+                  title: 'Resposta em menos de 3 segundos',
+                  desc: 'Nenhum cliente fica esperando. A IA responde instantaneamente, a qualquer hora.',
+                },
+                {
+                  icon: '🧠',
+                  title: 'Conhece seu negócio de cor',
+                  desc: 'Você configura produtos, preços, FAQ e horários. A IA usa tudo isso nas respostas.',
+                },
+                {
+                  icon: '🤝',
+                  title: 'Transfere para humano quando necessário',
+                  desc: 'Quando o cliente precisa de atendimento especial, a IA avisa você na hora.',
+                },
+                {
+                  icon: '📈',
+                  title: 'Nunca mais perde uma venda',
+                  desc: 'Clientes atendidos de madrugada, no feriado ou quando você está ocupado.',
+                },
+              ].map((b) => (
+                <div key={b.title} className="flex gap-4">
+                  <div className="w-12 h-12 gradient-wine rounded-xl flex items-center justify-center text-xl shrink-0">
+                    {b.icon}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">{b.title}</h3>
+                    <p className="text-gray-400 text-sm leading-relaxed">{b.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Chat mock */}
+            <div className="card-glass rounded-2xl overflow-hidden glow-wine">
+              {/* WhatsApp header */}
+              <div className="gradient-wine px-4 py-3 flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center font-bold text-sm">
+                  M
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">Minha Empresa</p>
+                  <p className="text-xs text-white/70">● Online agora</p>
+                </div>
+              </div>
+              {/* Messages */}
+              <div className="bg-[#111] p-4 space-y-3 min-h-[320px]">
+                <div className="flex justify-start">
+                  <div className="bg-[#1a1a1a] rounded-2xl rounded-tl-none px-4 py-2.5 max-w-[80%]">
+                    <p className="text-sm">Olá! Qual o preço do plano Pro? 🙂</p>
+                    <p className="text-xs text-gray-500 mt-1 text-right">14:32</p>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <div className="gradient-wine rounded-2xl rounded-tr-none px-4 py-2.5 max-w-[80%]">
+                    <p className="text-sm">Olá! Tudo bem? 😊 O plano Pro custa R$ 197/mês e inclui:</p>
+                    <p className="text-sm mt-1">✅ 3 números de WhatsApp<br/>✅ Mensagens ilimitadas<br/>✅ IA com GPT-4o<br/>✅ Suporte prioritário</p>
+                    <p className="text-xs text-white/70 mt-1 text-right">14:32 ✓✓</p>
+                  </div>
+                </div>
+
+                <div className="flex justify-start">
+                  <div className="bg-[#1a1a1a] rounded-2xl rounded-tl-none px-4 py-2.5 max-w-[80%]">
+                    <p className="text-sm">Tem teste grátis?</p>
+                    <p className="text-xs text-gray-500 mt-1 text-right">14:33</p>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <div className="gradient-wine rounded-2xl rounded-tr-none px-4 py-2.5 max-w-[80%]">
+                    <p className="text-sm">Sim! Oferecemos 7 dias grátis para testar todos os recursos sem cartão de crédito. Quer começar agora? 🚀</p>
+                    <p className="text-xs text-white/70 mt-1 text-right">14:33 ✓✓</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 bg-[#A61B4D] rounded-full animate-bounce" style={{animationDelay:'0ms'}} />
+                    <span className="w-2 h-2 bg-[#A61B4D] rounded-full animate-bounce" style={{animationDelay:'150ms'}} />
+                    <span className="w-2 h-2 bg-[#A61B4D] rounded-full animate-bounce" style={{animationDelay:'300ms'}} />
+                  </div>
+                  <span className="text-xs text-gray-500">IA digitando...</span>
+                </div>
+              </div>
+              <div className="bg-[#0D0D0D] px-4 py-3 text-center">
+                <span className="text-xs text-[#A61B4D] font-medium">⚡ Respondeu em menos de 2 segundos</span>
               </div>
             </div>
           </div>
@@ -97,7 +229,7 @@ export default function LandingPage() {
             <h2 className="text-4xl font-bold mb-4">
               Tudo que você precisa para <span className="text-gradient">escalar</span>
             </h2>
-            <p className="text-gray-400 text-lg">Uma plataforma completa para automatizar seu atendimento</p>
+            <p className="text-gray-400 text-lg">Uma plataforma completa para automatizar e gerenciar seu atendimento</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -105,35 +237,35 @@ export default function LandingPage() {
               {
                 icon: '🤖',
                 title: 'IA com GPT-4o',
-                desc: 'Respostas inteligentes e contextuais. A IA aprende sobre sua empresa e responde como um atendente humano.',
+                desc: 'Respostas inteligentes e contextuais. A IA aprende sobre sua empresa e atende como um humano — mas sem errar e sem cansaço.',
               },
               {
                 icon: '📱',
-                title: 'WhatsApp Real',
-                desc: 'Conecte seu número via QR Code. Sem APIs não-oficiais. Integração com Evolution API.',
+                title: 'WhatsApp Oficial',
+                desc: 'Conecte seu número via QR Code em segundos. Integração estável com Evolution API, sem risco de ban.',
               },
               {
                 icon: '⚡',
-                title: 'Tempo Real',
-                desc: 'Acompanhe conversas ao vivo. Chat com atualização instantânea via WebSocket.',
+                title: 'Chat ao Vivo',
+                desc: 'Acompanhe todas as conversas em tempo real. Intervenha quando quiser e veja a IA trabalhando para você.',
               },
               {
-                icon: '🏢',
-                title: 'Multi-empresa',
-                desc: 'Cada empresa tem seu próprio ambiente. Dados isolados e seguros.',
+                icon: '🔔',
+                title: 'Alerta de Atendimento',
+                desc: 'Quando a IA não consegue resolver, você recebe um alerta na hora para assumir o atendimento sem o cliente perceber.',
               },
               {
                 icon: '📊',
                 title: 'Dashboard Completo',
-                desc: 'Métricas, conversas, histórico e status do WhatsApp em um único lugar.',
+                desc: 'Métricas, histórico de conversas, status do WhatsApp e performance da IA em um único painel.',
               },
               {
                 icon: '🔧',
-                title: 'Totalmente Customizável',
-                desc: 'Configure o prompt da IA, horários, produtos, FAQ e regras de atendimento.',
+                title: '100% Customizável',
+                desc: 'Configure o prompt da IA, produtos, preços, FAQ e regras de atendimento. Sua empresa, seu jeito.',
               },
             ].map((f) => (
-              <div key={f.title} className="card-glass rounded-xl p-6 hover:border-[#A61B4D]/30 transition-all group">
+              <div key={f.title} className="card-glass rounded-xl p-6 hover:border-[#A61B4D]/40 transition-all group hover:-translate-y-1 duration-200">
                 <div className="text-4xl mb-4">{f.icon}</div>
                 <h3 className="text-lg font-semibold mb-2 group-hover:text-[#A61B4D] transition-colors">{f.title}</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">{f.desc}</p>
@@ -147,14 +279,17 @@ export default function LandingPage() {
       <section id="how" className="py-24 px-6 bg-[#0a0a0a]">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Como <span className="text-gradient">funciona</span></h2>
+            <h2 className="text-4xl font-bold mb-4">
+              Configure em <span className="text-gradient">menos de 10 minutos</span>
+            </h2>
+            <p className="text-gray-400">Sem precisar de técnico, sem complicação</p>
           </div>
           <div className="grid md:grid-cols-4 gap-6">
             {[
-              { step: '01', title: 'Crie sua conta', desc: 'Cadastre sua empresa em segundos' },
+              { step: '01', title: 'Crie sua conta', desc: 'Cadastro simples, sem cartão de crédito' },
               { step: '02', title: 'Conecte o WhatsApp', desc: 'Escaneie o QR Code com seu celular' },
-              { step: '03', title: 'Configure a IA', desc: 'Adicione informações da sua empresa' },
-              { step: '04', title: 'Pronto!', desc: 'A IA começa a responder automaticamente' },
+              { step: '03', title: 'Configure a IA', desc: 'Adicione produtos, preços e instruções' },
+              { step: '04', title: 'Pronto!', desc: 'A IA já começa a atender seus clientes' },
             ].map((item, i) => (
               <div key={item.step} className="relative text-center">
                 {i < 3 && (
@@ -171,6 +306,169 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <section className="py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">
+              Quem usa, <span className="text-gradient">aprova</span>
+            </h2>
+            <p className="text-gray-400 text-lg">Empresas de todo o Brasil já automatizaram seu atendimento</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                name: 'Lucas Mendonça',
+                role: 'Dono — Clínica Estética Renata',
+                avatar: 'LM',
+                text: 'Antes eu perdia clientes de madrugada porque não tinha como responder. Agora a IA atende, agenda e manda os valores sozinha. Triplicou meu faturamento em 2 meses.',
+                stars: 5,
+              },
+              {
+                name: 'Fernanda Costa',
+                role: 'Gerente — Loja FitStyle',
+                avatar: 'FC',
+                text: 'Minha equipe vivia no WhatsApp respondendo as mesmas perguntas. Com o ChatNex, a IA resolve 90% dos atendimentos e meu time foca em fechar vendas maiores.',
+                stars: 5,
+              },
+              {
+                name: 'Rafael Alves',
+                role: 'CEO — Construtora RGA',
+                avatar: 'RA',
+                text: 'Configurei a IA com todos os nossos empreendimentos e ela já qualifica o lead antes de chegar pra mim. Economizei mais de 3 horas por dia. Vale cada centavo.',
+                stars: 5,
+              },
+            ].map((t) => (
+              <div key={t.name} className="card-glass rounded-xl p-6 flex flex-col gap-4 hover:border-[#A61B4D]/30 transition-all">
+                <div className="flex gap-1">
+                  {Array.from({length: t.stars}).map((_, i) => (
+                    <span key={i} className="text-[#A61B4D] text-lg">★</span>
+                  ))}
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed italic">&ldquo;{t.text}&rdquo;</p>
+                <div className="flex items-center gap-3 mt-auto pt-2 border-t border-[#2a2a2a]">
+                  <div className="w-10 h-10 gradient-wine rounded-full flex items-center justify-center text-xs font-bold shrink-0">
+                    {t.avatar}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm">{t.name}</p>
+                    <p className="text-xs text-gray-500">{t.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="py-24 px-6 bg-[#0a0a0a]">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">
+              Planos e <span className="text-gradient">preços</span>
+            </h2>
+            <p className="text-gray-400 text-lg">Comece grátis por 7 dias. Sem cartão de crédito.</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 items-start">
+            {/* Starter */}
+            <div className="card-glass rounded-2xl p-8 flex flex-col gap-4">
+              <div>
+                <p className="text-sm text-gray-400 font-medium uppercase tracking-wider mb-2">Starter</p>
+                <div className="flex items-end gap-1">
+                  <span className="text-4xl font-black">R$ 97</span>
+                  <span className="text-gray-400 mb-1">/mês</span>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">Ideal para autônomos e pequenas empresas</p>
+              </div>
+              <div className="border-t border-[#2a2a2a] pt-4 space-y-3">
+                {[
+                  '1 número de WhatsApp',
+                  'IA com GPT-4o',
+                  '2.000 mensagens/mês',
+                  'Chat ao vivo',
+                  'Suporte por e-mail',
+                ].map((f) => (
+                  <div key={f} className="flex items-center gap-2 text-sm text-gray-300">
+                    <span className="text-[#A61B4D]">✓</span> {f}
+                  </div>
+                ))}
+              </div>
+              <Link href="/register" className="mt-auto block text-center border border-[#A61B4D] text-[#A61B4D] hover:bg-[#A61B4D] hover:text-white transition-all py-3 rounded-xl font-semibold text-sm">
+                Começar grátis
+              </Link>
+            </div>
+
+            {/* Pro — highlighted */}
+            <div className="card-glass rounded-2xl p-8 flex flex-col gap-4 border-[#A61B4D]/50 glow-wine relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="gradient-wine text-xs font-bold px-4 py-1 rounded-full">MAIS POPULAR</span>
+              </div>
+              <div>
+                <p className="text-sm text-[#A61B4D] font-medium uppercase tracking-wider mb-2">Pro</p>
+                <div className="flex items-end gap-1">
+                  <span className="text-4xl font-black">R$ 197</span>
+                  <span className="text-gray-400 mb-1">/mês</span>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">Para empresas que querem escalar de verdade</p>
+              </div>
+              <div className="border-t border-[#2a2a2a] pt-4 space-y-3">
+                {[
+                  '3 números de WhatsApp',
+                  'IA com GPT-4o',
+                  'Mensagens ilimitadas',
+                  'Chat ao vivo',
+                  'Alertas de atendimento',
+                  'Suporte prioritário',
+                ].map((f) => (
+                  <div key={f} className="flex items-center gap-2 text-sm text-gray-300">
+                    <span className="text-[#A61B4D]">✓</span> {f}
+                  </div>
+                ))}
+              </div>
+              <Link href="/register" className="mt-auto block text-center btn-wine py-3 rounded-xl font-semibold text-sm glow-wine-sm">
+                Começar grátis
+              </Link>
+            </div>
+
+            {/* Enterprise */}
+            <div className="card-glass rounded-2xl p-8 flex flex-col gap-4">
+              <div>
+                <p className="text-sm text-gray-400 font-medium uppercase tracking-wider mb-2">Enterprise</p>
+                <div className="flex items-end gap-1">
+                  <span className="text-4xl font-black">Custom</span>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">Para grandes operações e múltiplas unidades</p>
+              </div>
+              <div className="border-t border-[#2a2a2a] pt-4 space-y-3">
+                {[
+                  'Números ilimitados',
+                  'IA com GPT-4o',
+                  'Mensagens ilimitadas',
+                  'Multi-setor e equipes',
+                  'Relatórios avançados',
+                  'Onboarding dedicado',
+                  'SLA garantido',
+                ].map((f) => (
+                  <div key={f} className="flex items-center gap-2 text-sm text-gray-300">
+                    <span className="text-[#A61B4D]">✓</span> {f}
+                  </div>
+                ))}
+              </div>
+              <a href="https://wa.me/5511999999999" className="mt-auto block text-center border border-[#2a2a2a] hover:border-[#A61B4D]/50 transition-all py-3 rounded-xl font-semibold text-sm">
+                Falar com vendas
+              </a>
+            </div>
+          </div>
+
+          <p className="text-center text-xs text-gray-600 mt-8">
+            Todos os planos incluem 7 dias de teste grátis. Cancele a qualquer momento.
+          </p>
+        </div>
+      </section>
+
       {/* FAQ */}
       <section id="faq" className="py-24 px-6">
         <div className="max-w-3xl mx-auto">
@@ -181,25 +479,33 @@ export default function LandingPage() {
             {[
               {
                 q: 'Como o ChatNex se integra ao WhatsApp?',
-                a: 'Usamos a Evolution API, uma solução robusta que permite conectar seu WhatsApp via QR Code, sem precisar de aprovação do Meta.',
+                a: 'Usamos a Evolution API, uma solução robusta que conecta seu WhatsApp via QR Code. Sem precisar de aprovação do Meta, sem complicação técnica.',
               },
               {
-                q: 'A IA pode atender 24 horas por dia?',
-                a: 'Sim! A IA funciona 24/7, respondendo automaticamente seus clientes a qualquer hora. Você pode configurar horários de funcionamento se preferir.',
+                q: 'Preciso saber programar para usar?',
+                a: 'Não. O ChatNex foi desenvolvido para qualquer pessoa conseguir configurar. Em menos de 10 minutos seu atendimento já está funcionando.',
+              },
+              {
+                q: 'A IA responde 24 horas por dia?',
+                a: 'Sim! A IA funciona 24/7, respondendo automaticamente a qualquer hora. Você pode configurar horários de funcionamento se preferir que ela só responda em determinados períodos.',
+              },
+              {
+                q: 'O que acontece quando a IA não sabe responder?',
+                a: 'Ela avisa o cliente que vai verificar e envia um alerta para você no dashboard. Você assume o atendimento manualmente com um clique e o cliente nunca fica sem resposta.',
               },
               {
                 q: 'Posso personalizar as respostas da IA?',
-                a: 'Totalmente. Você configura o prompt, produtos, FAQ, horários e regras de comportamento da IA diretamente no dashboard.',
+                a: 'Totalmente. Você configura a personalidade, produtos, preços, FAQ e regras de comportamento. A IA só responde dentro do contexto da sua empresa.',
               },
               {
-                q: 'É possível atender manualmente?',
-                a: 'Sim. Você pode desativar a IA em uma conversa específica e responder manualmente pelo chat ao vivo do dashboard.',
+                q: 'Há risco do meu número ser banido?',
+                a: 'O risco existe em qualquer automação de WhatsApp. Recomendamos usar um número dedicado para o negócio (não seu número pessoal) e evitar envios em massa.',
               },
             ].map((item) => (
               <details key={item.q} className="card-glass rounded-xl group">
                 <summary className="px-6 py-4 cursor-pointer font-medium flex items-center justify-between list-none">
                   {item.q}
-                  <span className="text-[#A61B4D] text-lg">+</span>
+                  <span className="text-[#A61B4D] text-lg shrink-0 ml-4">+</span>
                 </summary>
                 <p className="px-6 pb-4 text-gray-400 text-sm leading-relaxed">{item.a}</p>
               </details>
@@ -208,34 +514,48 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-24 px-6">
+      {/* CTA final */}
+      <section className="py-24 px-6 bg-[#0a0a0a]">
         <div className="max-w-3xl mx-auto text-center">
           <div className="card-glass rounded-2xl p-12 glow-wine">
+            <div className="inline-flex items-center gap-2 bg-[#A61B4D]/10 border border-[#A61B4D]/30 rounded-full px-4 py-2 text-sm text-[#A61B4D] mb-6">
+              <span className="w-2 h-2 bg-[#A61B4D] rounded-full animate-pulse" />
+              7 dias grátis — sem cartão de crédito
+            </div>
             <h2 className="text-4xl font-bold mb-4">
-              Pronto para <span className="text-gradient">automatizar</span>?
+              Seu concorrente já pode<br />
+              estar usando. <span className="text-gradient">E você?</span>
             </h2>
             <p className="text-gray-400 mb-8 text-lg">
-              Junte-se a centenas de empresas que já usam o ChatNex para escalar seu atendimento.
+              Enquanto você pensa, sua IA poderia estar fechando vendas. Comece agora em menos de 10 minutos.
             </p>
             <Link href="/register" className="btn-wine px-10 py-4 rounded-xl text-base font-semibold inline-block glow-wine">
-              Começar agora — é grátis →
+              Automatizar meu WhatsApp agora →
             </Link>
+            <p className="text-xs text-gray-600 mt-4">Sem cartão de crédito · Cancele quando quiser · Suporte em português</p>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#1a1a1a] py-8 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded gradient-wine flex items-center justify-center text-xs font-bold">CN</div>
-            <span className="font-bold">ChatNex</span>
+      <footer className="border-t border-[#1a1a1a] py-10 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded gradient-wine flex items-center justify-center text-xs font-bold">CN</div>
+              <span className="font-bold text-lg">ChatNex</span>
+            </div>
+            <div className="flex gap-6 text-sm text-gray-500">
+              <a href="#features" className="hover:text-white transition-colors">Recursos</a>
+              <a href="#pricing" className="hover:text-white transition-colors">Preços</a>
+              <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
+              <Link href="/login" className="hover:text-white transition-colors">Login</Link>
+            </div>
+            <p className="text-sm text-gray-600">
+              © 2025 ChatNex · Desenvolvido pela{' '}
+              <span className="text-[#A61B4D]">Nodex</span>
+            </p>
           </div>
-          <p className="text-sm text-gray-500">
-            © 2024 ChatNex — Desenvolvido por{' '}
-            <span className="text-[#A61B4D]">Nodex</span> — Agência de Marketing Digital
-          </p>
         </div>
       </footer>
     </div>
