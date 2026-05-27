@@ -45,15 +45,15 @@ router.get('/:id/messages', async (req, res) => {
       return res.status(404).json({ error: 'Conversa não encontrada' });
     }
 
-    const { page = 1, limit = 50 } = req.query;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const limit = parseInt(req.query.limit || '50');
 
+    // Fetch the LAST N messages (most recent) by ordering desc, then reverse
     const messages = await prisma.message.findMany({
       where: { conversationId: conversation.id },
-      orderBy: { createdAt: 'asc' },
-      skip,
-      take: parseInt(limit),
+      orderBy: { createdAt: 'desc' },
+      take: limit,
     });
+    messages.reverse();
 
     await prisma.conversation.update({
       where: { id: conversation.id },

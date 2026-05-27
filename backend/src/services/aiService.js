@@ -38,56 +38,40 @@ const generateResponse = async ({ settings, messages, newMessage, clientName }) 
 const buildSystemPrompt = (settings, clientName) => {
   const parts = [];
 
-  const basePrompt =
-    settings.systemPrompt ||
-    `Você é um atendente virtual profissional e educado da empresa ${settings.businessName || 'nossa empresa'}.`;
+  const hasCustomPrompt = settings.systemPrompt && settings.systemPrompt.trim().length > 0;
 
-  parts.push(basePrompt);
+  if (hasCustomPrompt) {
+    // User wrote a custom prompt — use it as-is, only add client name context
+    parts.push(settings.systemPrompt.trim());
+    if (clientName) {
+      parts.push(`\nO cliente se chama ${clientName}.`);
+    }
+  } else {
+    // No custom prompt — build the default prompt from individual fields
+    parts.push(
+      `Você é um atendente virtual profissional e educado da empresa ${settings.businessName || 'nossa empresa'}.`
+    );
 
-  if (settings.businessName) {
-    parts.push(`\nEmpresa: ${settings.businessName}`);
-  }
-
-  if (settings.businessHours) {
-    parts.push(`Horário de funcionamento: ${settings.businessHours}`);
-  }
-
-  if (settings.businessAddress) {
-    parts.push(`Endereço: ${settings.businessAddress}`);
-  }
-
-  if (settings.businessPhone) {
-    parts.push(`Telefone: ${settings.businessPhone}`);
-  }
-
-  if (settings.products) {
-    parts.push(`\nProdutos/Serviços disponíveis:\n${settings.products}`);
-  }
-
-  if (settings.faq) {
-    parts.push(`\nPerguntas frequentes:\n${settings.faq}`);
-  }
-
-  if (settings.aiRules) {
-    parts.push(`\nRegras importantes:\n${settings.aiRules}`);
-  }
-
-  if (clientName) {
-    parts.push(`\nO cliente se chama ${clientName}.`);
+    if (settings.businessName) parts.push(`\nEmpresa: ${settings.businessName}`);
+    if (settings.businessHours) parts.push(`Horário de funcionamento: ${settings.businessHours}`);
+    if (settings.businessAddress) parts.push(`Endereço: ${settings.businessAddress}`);
+    if (settings.businessPhone) parts.push(`Telefone: ${settings.businessPhone}`);
+    if (settings.products) parts.push(`\nProdutos/Serviços disponíveis:\n${settings.products}`);
+    if (settings.faq) parts.push(`\nPerguntas frequentes:\n${settings.faq}`);
+    if (settings.aiRules) parts.push(`\nRegras importantes:\n${settings.aiRules}`);
+    if (clientName) parts.push(`\nO cliente se chama ${clientName}.`);
   }
 
   parts.push(
-    '\nInstruções gerais:',
+    '\nInstruções obrigatórias (nunca ignore):',
     '- Responda sempre em português brasileiro',
-    '- Seja cordial, empático e profissional, mas natural — como um atendente humano real',
+    '- Seja natural como um atendente humano — nunca robótico',
     '- Mantenha respostas objetivas e claras, sem rodeios',
     '- Nunca invente informações que não foram fornecidas',
-    '- Se não souber algo, diga que irá verificar ou transferir para um atendente humano',
-    '- Use linguagem adequada ao contexto',
-    '- NUNCA use saudações como "Olá", "Boa noite", "Bom dia", "Oi" no meio ou continuação de uma conversa já iniciada — só responda ao que foi perguntado',
-    '- NUNCA diga frases como "como mencionei antes", "já falei sobre isso", "como expliquei anteriormente" — apenas responda a pergunta atual diretamente',
-    '- Não repita informações que já foram ditas na conversa a não ser que o cliente peça explicitamente',
-    '- Se o cliente mudar de assunto, responda o novo assunto sem comentar a mudança'
+    '- Se não souber algo, diga que irá verificar ou chamar um atendente',
+    '- NUNCA use saudações ("Olá", "Boa noite", "Oi", "Bom dia") no meio de uma conversa já iniciada — apenas responda o que foi perguntado',
+    '- NUNCA diga "como mencionei antes", "já falei sobre isso", "como expliquei anteriormente"',
+    '- Não traga assuntos que o cliente não perguntou — responda somente o que foi perguntado'
   );
 
   return parts.join('\n');

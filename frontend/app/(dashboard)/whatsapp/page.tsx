@@ -181,13 +181,15 @@ export default function WhatsAppPage() {
             )}
           </div>
 
-          {/* Não conectado */}
-          {!instance && (
+          {/* Não conectado ou desconectado */}
+          {(!instance || status === 'DISCONNECTED') && (
             <div className="text-center py-8">
               <div className="w-20 h-20 bg-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-4xl">📱</span>
               </div>
-              <h3 className="font-semibold mb-2">Nenhuma instância configurada</h3>
+              <h3 className="font-semibold mb-2">
+                {status === 'DISCONNECTED' ? 'WhatsApp desconectado' : 'Nenhuma instância configurada'}
+              </h3>
               <p className="text-gray-400 text-sm mb-6">
                 Conecte seu WhatsApp para começar a receber e responder mensagens automaticamente
               </p>
