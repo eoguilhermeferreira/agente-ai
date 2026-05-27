@@ -37,47 +37,40 @@ const generateResponse = async ({ settings, messages, clientName }) => {
 };
 
 const buildSystemPrompt = (settings, clientName) => {
-  const parts = [];
-
   const hasCustomPrompt = settings.systemPrompt && settings.systemPrompt.trim().length > 0;
 
   if (hasCustomPrompt) {
-    // User wrote a custom prompt — use it as-is, only add client name context
-    parts.push(settings.systemPrompt.trim());
-    if (clientName) {
-      parts.push(`\nO cliente se chama ${clientName}.`);
-    }
-  } else {
-    // No custom prompt — build the default prompt from individual fields
-    parts.push(
-      `Você é um atendente virtual profissional e educado da empresa ${settings.businessName || 'nossa empresa'}.`
-    );
-
-    if (settings.businessName) parts.push(`\nEmpresa: ${settings.businessName}`);
-    if (settings.businessHours) parts.push(`Horário de funcionamento: ${settings.businessHours}`);
-    if (settings.businessAddress) parts.push(`Endereço: ${settings.businessAddress}`);
-    if (settings.businessPhone) parts.push(`Telefone: ${settings.businessPhone}`);
-    if (settings.products) parts.push(`\nProdutos/Serviços disponíveis:\n${settings.products}`);
-    if (settings.faq) parts.push(`\nPerguntas frequentes:\n${settings.faq}`);
-    if (settings.aiRules) parts.push(`\nRegras importantes:\n${settings.aiRules}`);
+    // Custom prompt configured — use it exactly as written, no additions
+    const parts = [settings.systemPrompt.trim()];
     if (clientName) parts.push(`\nO cliente se chama ${clientName}.`);
+    return parts.join('');
   }
 
+  // No custom prompt — build from individual fields with default guardrails
+  const parts = [
+    `Você é um atendente virtual profissional e educado da empresa ${settings.businessName || 'nossa empresa'}.`,
+  ];
+
+  if (settings.businessName) parts.push(`\nEmpresa: ${settings.businessName}`);
+  if (settings.businessHours) parts.push(`\nHorário de funcionamento: ${settings.businessHours}`);
+  if (settings.businessAddress) parts.push(`\nEndereço: ${settings.businessAddress}`);
+  if (settings.businessPhone) parts.push(`\nTelefone: ${settings.businessPhone}`);
+  if (settings.products) parts.push(`\n\nProdutos/Serviços disponíveis:\n${settings.products}`);
+  if (settings.faq) parts.push(`\n\nPerguntas frequentes:\n${settings.faq}`);
+  if (settings.aiRules) parts.push(`\n\nRegras importantes:\n${settings.aiRules}`);
+  if (clientName) parts.push(`\n\nO cliente se chama ${clientName}.`);
+
   parts.push(
-    '\nInstruções obrigatórias (nunca ignore):',
-    '- Responda sempre em português brasileiro',
-    '- Seja natural como um atendente humano — nunca robótico',
-    '- Mantenha respostas curtas e diretas ao ponto',
-    '- Nunca invente informações que não foram fornecidas',
-    '- Se não souber algo, diga que irá verificar ou chamar um atendente humano',
-    '- REGRA DE OURO: só fale sobre um assunto se o cliente perguntar diretamente sobre ele',
-    '- Quando o cliente mandar uma saudação ("Olá", "Oi", "Bom dia", "Boa tarde" etc.), responda APENAS com uma saudação correspondente e pergunte como pode ajudar — NUNCA liste serviços ou informações sem que o cliente peça',
-    '- Quando o cliente fizer uma pergunta específica, responda SÓ aquela pergunta — não adicione informações extras não solicitadas',
-    '- NUNCA diga "como mencionei antes", "já falei sobre isso", "como expliquei anteriormente" — responda cada mensagem como se fosse independente',
-    '- Se o cliente mudar de assunto, responda o novo assunto diretamente sem comentar a mudança'
+    '\n\nInstruções de comportamento:',
+    '\n- Responda sempre em português brasileiro',
+    '\n- Seja natural, como um atendente humano',
+    '\n- Respostas curtas e diretas — sem informações extras não solicitadas',
+    '\n- Nunca invente informações',
+    '\n- Ao receber uma saudação, responda apenas com uma saudação e pergunte como pode ajudar',
+    '\n- Se não souber algo, diga que vai verificar ou chamar um atendente'
   );
 
-  return parts.join('\n');
+  return parts.join('');
 };
 
 module.exports = { generateResponse };
