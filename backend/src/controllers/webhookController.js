@@ -5,6 +5,25 @@ const evolutionService = require('../services/evolutionService');
 // Debounce map: remoteJid -> { timer, contents, conversationId, instanceName, settings, clientName, companyId }
 const pendingAI = new Map();
 
+const HANDOFF_PHRASES = [
+  'chamar um atendente',
+  'chamar atendente',
+  'vou chamar',
+  'transferir para',
+  'atendente humano',
+  'atendente irá',
+  'atendente vai',
+  'passarei para',
+  'encaminhar para um',
+  'humano irá atend',
+];
+
+const needsHumanHandoff = (text) => {
+  if (!text) return false;
+  const lower = text.toLowerCase();
+  return HANDOFF_PHRASES.some(phrase => lower.includes(phrase));
+};
+
 const handleEvolutionWebhook = async (req, res) => {
   res.status(200).json({ received: true });
 
@@ -107,6 +126,21 @@ const sendAIResponse = async ({ conversationId, instanceName, settings, remoteJi
         where: { id: conversationId },
         data: { lastMessage: lastSavedContent, lastMessageAt: new Date() },
       });
+    }
+
+    if (needsHumanHandoff(aiResponse)) {
+      await prisma.conversation.update({
+        where: { id: conversationId },
+        data: { status: 'PENDING', aiEnabled: false },
+      });
+      if (global.io) {
+        global.io.to(`company-${companyId}`).emit('human-needed', {
+          conversationId,
+          clientName,
+          clientPhone: remoteJid.replace('@s.whatsapp.net', ''),
+          lastMessage: aiResponse,
+        });
+      }
     }
   } catch (error) {
     console.error('Erro ao gerar/enviar resposta IA:', error);

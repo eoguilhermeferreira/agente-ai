@@ -35,6 +35,7 @@ export interface Conversation {
   unreadCount: number;
   status: string;
   aiEnabled: boolean;
+  needsHuman?: boolean;
 }
 
 export interface Message {
@@ -51,6 +52,7 @@ export interface DashboardStats {
   openConversations: number;
   todayMessages: number;
   totalMessages: number;
+  pendingConversations?: number;
 }
 
 export interface Settings {

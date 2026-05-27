@@ -140,4 +140,31 @@ router.patch('/:id/toggle-ai', async (req, res) => {
   }
 });
 
+router.patch('/:id/resolve', async (req, res) => {
+  try {
+    const conversation = await prisma.conversation.findFirst({
+      where: { id: req.params.id, companyId: req.companyId },
+    });
+
+    if (!conversation) {
+      return res.status(404).json({ error: 'Conversa não encontrada' });
+    }
+
+    await prisma.conversation.update({
+      where: { id: conversation.id },
+      data: { status: 'OPEN' },
+    });
+
+    if (global.io) {
+      global.io.to(`company-${req.companyId}`).emit('human-resolved', {
+        conversationId: conversation.id,
+      });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao resolver conversa' });
+  }
+});
+
 module.exports = router;

@@ -1,19 +1,75 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { io, Socket } from 'socket.io-client';
+import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 
-const navItems = [
+const staticNavItems = [
   { href: '/dashboard', icon: '⬛', label: 'Dashboard' },
   { href: '/whatsapp', icon: '📱', label: 'WhatsApp' },
   { href: '/chat', icon: '💬', label: 'Chat ao Vivo' },
+  { href: '/atendimentos', icon: '🧑', label: 'Atendimentos' },
   { href: '/settings', icon: '⚙️', label: 'Configurações' },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, company, logout } = useAuth();
+  const [pendingCount, setPendingCount] = useState(0);
+  const socketRef = useRef<Socket | null>(null);
+
+  useEffect(() => {
+    const fetchPending = async () => {
+      try {
+        const res = await api.get('/conversations?status=PENDING&limit=1');
+        setPendingCount(res.data.total ?? 0);
+      } catch {
+        // silent
+      }
+    };
+
+    fetchPending();
+    const interval = setInterval(fetchPending, 15000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (!company?.id) return;
+
+    let cancelled = false;
+    let activeSocket: Socket | null = null;
+
+    fetch('/api/config')
+      .then(r => r.json())
+      .then(({ socketUrl }: { socketUrl: string }) => {
+        if (cancelled || !socketUrl) return;
+
+        const socket = io(socketUrl, { transports: ['websocket', 'polling'] });
+        activeSocket = socket;
+        socketRef.current = socket;
+
+        socket.on('connect', () => {
+          socket.emit('join-company', company.id);
+        });
+
+        socket.on('human-needed', () => {
+          setPendingCount(prev => prev + 1);
+        });
+
+        socket.on('human-resolved', () => {
+          setPendingCount(prev => Math.max(0, prev - 1));
+        });
+      });
+
+    return () => {
+      cancelled = true;
+      activeSocket?.disconnect();
+      socketRef.current = null;
+    };
+  }, [company?.id]);
 
   return (
     <aside className="fixed left-0 top-0 h-full w-64 bg-[#0D0D0D] border-r border-[#1a1a1a] flex flex-col z-40">
@@ -43,8 +99,9 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {navItems.map((item) => {
+        {staticNavItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+          const isAtendimentos = item.href === '/atendimentos';
           return (
             <Link
               key={item.href}
@@ -54,7 +111,12 @@ export default function Sidebar() {
               }`}
             >
               <span className="text-lg">{item.icon}</span>
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {isAtendimentos && pendingCount > 0 && (
+                <span className="w-5 h-5 bg-red-600 rounded-full text-xs flex items-center justify-center text-white font-bold flex-shrink-0">
+                  {pendingCount > 9 ? '9+' : pendingCount}
+                </span>
+              )}
             </Link>
           );
         })}

@@ -17,6 +17,7 @@ router.get('/stats', async (req, res) => {
       openConversations,
       todayMessages,
       totalMessages,
+      pendingConversations,
       instance,
       recentConversations,
     ] = await Promise.all([
@@ -31,6 +32,7 @@ router.get('/stats', async (req, res) => {
       prisma.message.count({
         where: { conversation: { companyId } },
       }),
+      prisma.conversation.count({ where: { companyId, status: 'PENDING' } }),
       prisma.whatsappInstance.findFirst({
         where: { companyId },
         select: { status: true, qrCode: true },
@@ -57,6 +59,7 @@ router.get('/stats', async (req, res) => {
         openConversations,
         todayMessages,
         totalMessages,
+        pendingConversations,
       },
       whatsapp: {
         status: instance?.status || 'DISCONNECTED',
