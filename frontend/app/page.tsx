@@ -45,11 +45,6 @@ export default function LandingPage() {
         </div>
 
         <div className="relative max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-[#1a1a1a] border border-[#A61B4D]/30 rounded-full px-4 py-2 text-sm text-[#A61B4D] mb-8 glow-wine-sm">
-            <span className="w-2 h-2 bg-[#A61B4D] rounded-full animate-pulse" />
-            Powered by OpenAI GPT-4o — sem fila, sem espera
-          </div>
-
           <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight tracking-tight">
             Atendimento 100%<br />
             automatizado no seu<br />
@@ -72,7 +67,7 @@ export default function LandingPage() {
               rel="noopener noreferrer"
               className="btn-wine px-8 py-4 rounded-xl text-base font-semibold glow-wine w-full sm:w-auto text-center"
             >
-              Quero automatizar meu WhatsApp →
+              Quero automatizar meu WhatsApp
             </a>
             <a href="#demo" className="px-8 py-4 rounded-xl text-base font-semibold border border-[#2a2a2a] hover:border-[#A61B4D]/50 transition-all w-full sm:w-auto text-center">
               Ver demo
@@ -115,7 +110,7 @@ export default function LandingPage() {
               <div className="w-3 h-3 rounded-full bg-[#A61B4D]" />
               <div className="w-3 h-3 rounded-full bg-[#7A123B]" />
               <div className="w-3 h-3 rounded-full bg-[#5B0E2D]" />
-              <span className="text-xs text-gray-500 ml-2">ChatNex — Dashboard ao vivo</span>
+              <span className="text-xs text-gray-500 ml-2">Pizzaria Bella Napoli</span>
               <div className="ml-auto flex items-center gap-1.5">
                 <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                 <span className="text-xs text-green-400">WhatsApp conectado</span>
@@ -123,8 +118,8 @@ export default function LandingPage() {
             </div>
             <div className="grid grid-cols-4 gap-3 p-4 bg-[#0D0D0D]">
               {[
-                { label: 'Conversas Hoje', value: '47', trend: '+12 novas' },
-                { label: 'Respondidas pela IA', value: '43', trend: '91% automático' },
+                { label: 'Pedidos Hoje', value: '47', trend: '+12 novos' },
+                { label: 'Respondidos pela IA', value: '43', trend: '91% automático' },
                 { label: 'Tempo Médio', value: '< 3s', trend: 'de resposta' },
                 { label: 'Satisfação', value: '4.9★', trend: 'dos clientes' },
               ].map((stat) => (
@@ -142,10 +137,10 @@ export default function LandingPage() {
                   <p className="text-xs font-medium text-gray-400">Conversas recentes</p>
                 </div>
                 {[
-                  { name: 'Lucas M.', msg: 'Qual o preço do plano...', time: '14:32', active: true },
-                  { name: 'Fernanda C.', msg: 'Tem como parcelar?', time: '14:28', active: false },
-                  { name: 'Rafael A.', msg: 'Quero saber mais sobre...', time: '14:15', active: false },
-                  { name: 'Ana S.', msg: 'Obrigada pelo atendimento!', time: '13:50', active: false },
+                  { name: 'Lucas M.', msg: 'Tem delivery para o centro?', time: '14:32', active: true },
+                  { name: 'Fernanda C.', msg: 'Qual o preço da calabresa?', time: '14:28', active: false },
+                  { name: 'Rafael A.', msg: 'Quanto tempo demora?', time: '14:15', active: false },
+                  { name: 'Ana S.', msg: 'Boa noite! Cardápio completo?', time: '13:50', active: false },
                 ].map((c) => (
                   <div key={c.name} className={`flex items-center gap-2 px-3 py-2.5 border-b border-[#1a1a1a] ${c.active ? 'bg-[#A61B4D]/10' : ''}`}>
                     <div className="w-7 h-7 gradient-wine rounded-full flex items-center justify-center text-xs font-bold shrink-0">
@@ -169,22 +164,22 @@ export default function LandingPage() {
                 <div className="flex-1 p-3 space-y-2 overflow-hidden">
                   <div className="flex justify-start">
                     <div className="bg-[#1a1a1a] rounded-xl px-3 py-1.5 max-w-[70%]">
-                      <p className="text-xs">Qual o preço do plano Pro?</p>
+                      <p className="text-xs">Tem delivery para o centro?</p>
                     </div>
                   </div>
                   <div className="flex justify-end">
                     <div className="gradient-wine rounded-xl px-3 py-1.5 max-w-[70%]">
-                      <p className="text-xs">O plano Pro é R$ 197/mês com mensagens ilimitadas! 🚀</p>
+                      <p className="text-xs">Sim! Entregamos no centro. Frete R$ 5. Pedido mínimo R$ 30.</p>
                     </div>
                   </div>
                   <div className="flex justify-start">
                     <div className="bg-[#1a1a1a] rounded-xl px-3 py-1.5 max-w-[70%]">
-                      <p className="text-xs">Tem teste grátis?</p>
+                      <p className="text-xs">Quanto tempo demora?</p>
                     </div>
                   </div>
                   <div className="flex justify-end">
                     <div className="gradient-wine rounded-xl px-3 py-1.5 max-w-[70%]">
-                      <p className="text-xs">Sim! 7 dias grátis sem cartão 😊</p>
+                      <p className="text-xs">Média de 35 a 45 minutos. Quer fazer seu pedido?</p>
                     </div>
                   </div>
                 </div>
@@ -201,7 +196,7 @@ export default function LandingPage() {
             <h2 className="text-4xl font-bold mb-4">
               Veja a IA <span className="text-gradient">em ação</span>
             </h2>
-            <p className="text-gray-400 text-lg">Seu cliente manda, a IA responde — na hora, 24 horas por dia</p>
+            <p className="text-gray-400 text-lg">Seu cliente manda, a IA responde na hora, 24 horas por dia</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -209,34 +204,25 @@ export default function LandingPage() {
             <div className="space-y-6">
               {[
                 {
-                  icon: '⚡',
                   title: 'Resposta em menos de 3 segundos',
                   desc: 'Nenhum cliente fica esperando. A IA responde instantaneamente, a qualquer hora.',
                 },
                 {
-                  icon: '🧠',
                   title: 'Conhece seu negócio de cor',
                   desc: 'Você configura produtos, preços, FAQ e horários. A IA usa tudo isso nas respostas.',
                 },
                 {
-                  icon: '🤝',
                   title: 'Transfere para humano quando necessário',
                   desc: 'Quando o cliente precisa de atendimento especial, a IA avisa você na hora.',
                 },
                 {
-                  icon: '📈',
                   title: 'Nunca mais perde uma venda',
                   desc: 'Clientes atendidos de madrugada, no feriado ou quando você está ocupado.',
                 },
               ].map((b) => (
-                <div key={b.title} className="flex gap-4">
-                  <div className="w-12 h-12 gradient-wine rounded-xl flex items-center justify-center text-xl shrink-0">
-                    {b.icon}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">{b.title}</h3>
-                    <p className="text-gray-400 text-sm leading-relaxed">{b.desc}</p>
-                  </div>
+                <div key={b.title} className="border-l-2 border-[#A61B4D] pl-4">
+                  <h3 className="font-semibold mb-1">{b.title}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">{b.desc}</p>
                 </div>
               ))}
             </div>
@@ -246,10 +232,10 @@ export default function LandingPage() {
               {/* WhatsApp header */}
               <div className="gradient-wine px-4 py-3 flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center font-bold text-sm">
-                  M
+                  P
                 </div>
                 <div>
-                  <p className="font-semibold text-sm">Minha Empresa</p>
+                  <p className="font-semibold text-sm">Pizzaria Bella Napoli</p>
                   <p className="text-xs text-white/70">● Online agora</p>
                 </div>
               </div>
@@ -257,30 +243,29 @@ export default function LandingPage() {
               <div className="bg-[#111] p-4 space-y-3 min-h-[320px]">
                 <div className="flex justify-start">
                   <div className="bg-[#1a1a1a] rounded-2xl rounded-tl-none px-4 py-2.5 max-w-[80%]">
-                    <p className="text-sm">Olá! Qual o preço do plano Pro? 🙂</p>
-                    <p className="text-xs text-gray-500 mt-1 text-right">14:32</p>
+                    <p className="text-sm">Boa noite! Vocês fazem delivery aqui no bairro Jardins?</p>
+                    <p className="text-xs text-gray-500 mt-1 text-right">20:14</p>
                   </div>
                 </div>
 
                 <div className="flex justify-end">
                   <div className="gradient-wine rounded-2xl rounded-tr-none px-4 py-2.5 max-w-[80%]">
-                    <p className="text-sm">Olá! Tudo bem? 😊 O plano Pro custa R$ 197/mês e inclui:</p>
-                    <p className="text-sm mt-1">✅ 3 números de WhatsApp<br/>✅ Mensagens ilimitadas<br/>✅ IA com GPT-4o<br/>✅ Suporte prioritário</p>
-                    <p className="text-xs text-white/70 mt-1 text-right">14:32 ✓✓</p>
+                    <p className="text-sm">Boa noite! Sim, entregamos no Jardins. Frete R$ 6, tempo médio 40 minutos. Quer ver nosso cardápio?</p>
+                    <p className="text-xs text-white/70 mt-1 text-right">20:14 ✓✓</p>
                   </div>
                 </div>
 
                 <div className="flex justify-start">
                   <div className="bg-[#1a1a1a] rounded-2xl rounded-tl-none px-4 py-2.5 max-w-[80%]">
-                    <p className="text-sm">Tem teste grátis?</p>
-                    <p className="text-xs text-gray-500 mt-1 text-right">14:33</p>
+                    <p className="text-sm">Sim! Qual o preço da pizza de frango?</p>
+                    <p className="text-xs text-gray-500 mt-1 text-right">20:15</p>
                   </div>
                 </div>
 
                 <div className="flex justify-end">
                   <div className="gradient-wine rounded-2xl rounded-tr-none px-4 py-2.5 max-w-[80%]">
-                    <p className="text-sm">Sim! Oferecemos 7 dias grátis para testar todos os recursos sem cartão de crédito. Quer começar agora? 🚀</p>
-                    <p className="text-xs text-white/70 mt-1 text-right">14:33 ✓✓</p>
+                    <p className="text-sm">Pizza de Frango com Catupiry: P R$ 39, M R$ 49, G R$ 59. Qual tamanho prefere?</p>
+                    <p className="text-xs text-white/70 mt-1 text-right">20:15 ✓✓</p>
                   </div>
                 </div>
 
@@ -316,7 +301,7 @@ export default function LandingPage() {
               {
                 icon: '🤖',
                 title: 'IA com GPT-4o',
-                desc: 'Respostas inteligentes e contextuais. A IA aprende sobre sua empresa e atende como um humano — mas sem errar e sem cansaço.',
+                desc: 'Respostas inteligentes e contextuais. A IA aprende sobre sua empresa e atende como um humano, sem errar e sem cansaço.',
               },
               {
                 icon: '📱',
@@ -365,7 +350,7 @@ export default function LandingPage() {
           </div>
           <div className="grid md:grid-cols-4 gap-6">
             {[
-              { step: '01', title: 'Crie sua conta', desc: 'Cadastro simples, sem cartão de crédito' },
+              { step: '01', title: 'Crie sua conta', desc: 'Cadastro simples e rápido' },
               { step: '02', title: 'Conecte o WhatsApp', desc: 'Escaneie o QR Code com seu celular' },
               { step: '03', title: 'Configure a IA', desc: 'Adicione produtos, preços e instruções' },
               { step: '04', title: 'Pronto!', desc: 'A IA já começa a atender seus clientes' },
@@ -399,21 +384,21 @@ export default function LandingPage() {
             {[
               {
                 name: 'Lucas Mendonça',
-                role: 'Dono — Clínica Estética Renata',
+                role: 'Dono, Clínica Estética Renata',
                 avatar: 'LM',
                 text: 'Antes eu perdia clientes de madrugada porque não tinha como responder. Agora a IA atende, agenda e manda os valores sozinha. Triplicou meu faturamento em 2 meses.',
                 stars: 5,
               },
               {
                 name: 'Fernanda Costa',
-                role: 'Gerente — Loja FitStyle',
+                role: 'Gerente, Loja FitStyle',
                 avatar: 'FC',
                 text: 'Minha equipe vivia no WhatsApp respondendo as mesmas perguntas. Com o ChatNex, a IA resolve 90% dos atendimentos e meu time foca em fechar vendas maiores.',
                 stars: 5,
               },
               {
                 name: 'Rafael Alves',
-                role: 'CEO — Construtora RGA',
+                role: 'CEO, Construtora RGA',
                 avatar: 'RA',
                 text: 'Configurei a IA com todos os nossos empreendimentos e ela já qualifica o lead antes de chegar pra mim. Economizei mais de 3 horas por dia. Vale cada centavo.',
                 stars: 5,
@@ -444,7 +429,7 @@ export default function LandingPage() {
       {/* Story scroll — Por que o ChatNex */}
       <FlowArt aria-label="Por que o ChatNex">
         <FlowSection aria-label="O problema" style={{ backgroundColor: '#A61B4D', color: '#fff' }}>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-70">01 — O problema</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-70">01   O problema</p>
           <hr className="my-[2vw] border-t border-white/30" />
           <div>
             <h2 className="text-[clamp(3rem,10vw,11rem)] font-black leading-[0.85] uppercase tracking-tight">
@@ -461,7 +446,7 @@ export default function LandingPage() {
         </FlowSection>
 
         <FlowSection aria-label="A solução" style={{ backgroundColor: '#0D0D0D', color: '#fff' }}>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#A61B4D]">02 — A solução</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#A61B4D]">02   A solução</p>
           <hr className="my-[2vw] border-t border-[#2a2a2a]" />
           <div>
             <h2 className="text-[clamp(3rem,10vw,11rem)] font-black leading-[0.85] uppercase tracking-tight">
@@ -490,7 +475,7 @@ export default function LandingPage() {
         </FlowSection>
 
         <FlowSection aria-label="Os resultados" style={{ backgroundColor: '#141414', color: '#fff' }}>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#A61B4D]">03 — Os resultados</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#A61B4D]">03   Os resultados</p>
           <hr className="my-[2vw] border-t border-[#2a2a2a]" />
           <div>
             <h2 className="text-[clamp(3rem,10vw,11rem)] font-black leading-[0.85] uppercase tracking-tight">
@@ -524,13 +509,13 @@ export default function LandingPage() {
             <h2 className="text-4xl font-bold mb-4">
               Planos e <span className="text-gradient">preços</span>
             </h2>
-            <p className="text-gray-400 text-lg">Comece grátis por 7 dias. Sem cartão de crédito.</p>
+            <p className="text-gray-400 text-lg">Tudo que seu negócio precisa, em um único plano.</p>
           </div>
 
           <div className="max-w-lg mx-auto">
             <div className="card-glass rounded-2xl p-10 flex flex-col gap-6 border-[#A61B4D]/50 glow-wine relative">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <span className="gradient-wine text-xs font-bold px-5 py-1.5 rounded-full tracking-wider">PLANO ÚNICO — TUDO INCLUSO</span>
+                <span className="gradient-wine text-xs font-bold px-5 py-1.5 rounded-full tracking-wider">PLANO ÚNICO   TUDO INCLUSO</span>
               </div>
               <div className="text-center pt-2">
                 <div className="flex items-end justify-center gap-1 mb-2">
@@ -560,7 +545,7 @@ export default function LandingPage() {
                 rel="noopener noreferrer"
                 className="btn-wine py-4 rounded-xl font-bold text-base text-center glow-wine"
               >
-                Quero contratar agora →
+                Quero contratar agora
               </a>
             </div>
           </div>
@@ -622,7 +607,7 @@ export default function LandingPage() {
           <div className="card-glass rounded-2xl p-12 glow-wine">
             <div className="inline-flex items-center gap-2 bg-[#A61B4D]/10 border border-[#A61B4D]/30 rounded-full px-4 py-2 text-sm text-[#A61B4D] mb-6">
               <span className="w-2 h-2 bg-[#A61B4D] rounded-full animate-pulse" />
-              7 dias grátis — sem cartão de crédito
+              Atendimento automatizado 24 horas por dia
             </div>
             <h2 className="text-4xl font-bold mb-4">
               Seu concorrente já pode<br />
@@ -637,7 +622,7 @@ export default function LandingPage() {
               rel="noopener noreferrer"
               className="btn-wine px-10 py-4 rounded-xl text-base font-semibold inline-block glow-wine"
             >
-              Automatizar meu WhatsApp agora →
+              Automatizar meu WhatsApp agora
             </a>
             <p className="text-xs text-gray-600 mt-4">Sem cartão de crédito · Cancele quando quiser · Suporte em português</p>
           </div>
