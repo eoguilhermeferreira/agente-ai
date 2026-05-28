@@ -542,12 +542,9 @@ export default function LandingPage() {
               <div className="border-t border-[#2a2a2a] pt-6 grid grid-cols-2 gap-3">
                 {[
                   'Números ilimitados de WhatsApp',
-                  'IA com GPT-4o',
                   'Mensagens ilimitadas',
                   'Chat ao vivo',
                   'Alertas de atendimento',
-                  'Multi-setor e equipes',
-                  'Relatórios avançados',
                   'Suporte prioritário',
                   'Onboarding dedicado',
                   'Cancele a qualquer momento',
