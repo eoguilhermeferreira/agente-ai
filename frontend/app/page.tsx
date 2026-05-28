@@ -299,38 +299,31 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-6">
             {[
               {
-                icon: '🤖',
                 title: 'IA com GPT-4o',
                 desc: 'Respostas inteligentes e contextuais. A IA aprende sobre sua empresa e atende como um humano, sem errar e sem cansaço.',
               },
               {
-                icon: '📱',
                 title: 'WhatsApp Oficial',
                 desc: 'Conecte seu número via QR Code em segundos. Integração estável com Evolution API, sem risco de ban.',
               },
               {
-                icon: '⚡',
                 title: 'Chat ao Vivo',
                 desc: 'Acompanhe todas as conversas em tempo real. Intervenha quando quiser e veja a IA trabalhando para você.',
               },
               {
-                icon: '🔔',
                 title: 'Alerta de Atendimento',
                 desc: 'Quando a IA não consegue resolver, você recebe um alerta na hora para assumir o atendimento sem o cliente perceber.',
               },
               {
-                icon: '📊',
                 title: 'Dashboard Completo',
                 desc: 'Métricas, histórico de conversas, status do WhatsApp e performance da IA em um único painel.',
               },
               {
-                icon: '🔧',
                 title: '100% Customizável',
                 desc: 'Configure o prompt da IA, produtos, preços, FAQ e regras de atendimento. Sua empresa, seu jeito.',
               },
             ].map((f) => (
               <div key={f.title} className="card-glass rounded-xl p-6 hover:border-[#A61B4D]/40 transition-all group hover:-translate-y-1 duration-200">
-                <div className="text-4xl mb-4">{f.icon}</div>
                 <h3 className="text-lg font-semibold mb-2 group-hover:text-[#A61B4D] transition-colors">{f.title}</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">{f.desc}</p>
               </div>
