@@ -106,33 +106,33 @@ export default function LandingPage() {
         >
           {/* Dashboard mock inside the 3D card */}
           <div className="h-full flex flex-col">
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-[#2a2a2a] bg-[#0D0D0D]">
-              <div className="w-3 h-3 rounded-full bg-[#A61B4D]" />
-              <div className="w-3 h-3 rounded-full bg-[#7A123B]" />
-              <div className="w-3 h-3 rounded-full bg-[#5B0E2D]" />
-              <span className="text-xs text-gray-500 ml-2">Pizzaria Bella Napoli</span>
-              <div className="ml-auto flex items-center gap-1.5">
-                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                <span className="text-xs text-green-400">WhatsApp conectado</span>
+            <div className="flex items-center gap-2 px-3 py-2 border-b border-[#2a2a2a] bg-[#0D0D0D]">
+              <div className="w-2.5 h-2.5 rounded-full bg-[#A61B4D]" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#7A123B]" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#5B0E2D]" />
+              <span className="text-xs text-gray-500 ml-2 truncate">Pizzaria Bella Napoli</span>
+              <div className="ml-auto flex items-center gap-1 shrink-0">
+                <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                <span className="text-xs text-green-400 hidden sm:block">WhatsApp conectado</span>
               </div>
             </div>
-            <div className="grid grid-cols-4 gap-3 p-4 bg-[#0D0D0D]">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-3 bg-[#0D0D0D]">
               {[
                 { label: 'Pedidos Hoje', value: '47', trend: '+12 novos' },
                 { label: 'Respondidos pela IA', value: '43', trend: '91% automático' },
                 { label: 'Tempo Médio', value: '< 3s', trend: 'de resposta' },
                 { label: 'Satisfação', value: '4.9★', trend: 'dos clientes' },
               ].map((stat) => (
-                <div key={stat.label} className="bg-[#141414] rounded-lg p-3 border border-[#1a1a1a]">
-                  <p className="text-xs text-gray-500 mb-1">{stat.label}</p>
-                  <p className="text-xl font-bold text-white">{stat.value}</p>
-                  <p className="text-xs text-[#A61B4D] mt-1">{stat.trend}</p>
+                <div key={stat.label} className="bg-[#141414] rounded-lg p-2.5 border border-[#1a1a1a]">
+                  <p className="text-[10px] text-gray-500 mb-0.5 leading-tight">{stat.label}</p>
+                  <p className="text-base font-bold text-white">{stat.value}</p>
+                  <p className="text-[10px] text-[#A61B4D] mt-0.5">{stat.trend}</p>
                 </div>
               ))}
             </div>
             <div className="flex flex-1 gap-0 overflow-hidden">
-              {/* Conversations list */}
-              <div className="w-64 border-r border-[#1a1a1a] bg-[#0D0D0D] overflow-hidden">
+              {/* Conversations list — hidden on mobile */}
+              <div className="hidden md:flex w-56 border-r border-[#1a1a1a] bg-[#0D0D0D] flex-col overflow-hidden">
                 <div className="px-3 py-2 border-b border-[#1a1a1a]">
                   <p className="text-xs font-medium text-gray-400">Conversas recentes</p>
                 </div>
@@ -142,43 +142,43 @@ export default function LandingPage() {
                   { name: 'Rafael A.', msg: 'Quanto tempo demora?', time: '14:15', active: false },
                   { name: 'Ana S.', msg: 'Boa noite! Cardápio completo?', time: '13:50', active: false },
                 ].map((c) => (
-                  <div key={c.name} className={`flex items-center gap-2 px-3 py-2.5 border-b border-[#1a1a1a] ${c.active ? 'bg-[#A61B4D]/10' : ''}`}>
-                    <div className="w-7 h-7 gradient-wine rounded-full flex items-center justify-center text-xs font-bold shrink-0">
+                  <div key={c.name} className={`flex items-center gap-2 px-3 py-2 border-b border-[#1a1a1a] ${c.active ? 'bg-[#A61B4D]/10' : ''}`}>
+                    <div className="w-6 h-6 gradient-wine rounded-full flex items-center justify-center text-xs font-bold shrink-0">
                       {c.name[0]}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-medium truncate">{c.name}</p>
-                      <p className="text-xs text-gray-500 truncate">{c.msg}</p>
+                      <p className="text-[10px] text-gray-500 truncate">{c.msg}</p>
                     </div>
-                    <p className="text-xs text-gray-600 shrink-0">{c.time}</p>
+                    <p className="text-[10px] text-gray-600 shrink-0">{c.time}</p>
                   </div>
                 ))}
               </div>
               {/* Chat area */}
               <div className="flex-1 bg-[#111] flex flex-col overflow-hidden">
-                <div className="px-4 py-2 border-b border-[#1a1a1a] flex items-center gap-2">
-                  <div className="w-6 h-6 gradient-wine rounded-full flex items-center justify-center text-xs font-bold">L</div>
+                <div className="px-3 py-2 border-b border-[#1a1a1a] flex items-center gap-2">
+                  <div className="w-5 h-5 gradient-wine rounded-full flex items-center justify-center text-xs font-bold">L</div>
                   <p className="text-xs font-medium">Lucas M.</p>
                   <span className="ml-auto text-xs text-green-400">● IA ativa</span>
                 </div>
-                <div className="flex-1 p-3 space-y-2 overflow-hidden">
+                <div className="flex-1 p-2.5 space-y-2 overflow-hidden">
                   <div className="flex justify-start">
-                    <div className="bg-[#1a1a1a] rounded-xl px-3 py-1.5 max-w-[70%]">
+                    <div className="bg-[#1a1a1a] rounded-xl px-3 py-1.5 max-w-[80%]">
                       <p className="text-xs">Tem delivery para o centro?</p>
                     </div>
                   </div>
                   <div className="flex justify-end">
-                    <div className="gradient-wine rounded-xl px-3 py-1.5 max-w-[70%]">
-                      <p className="text-xs">Sim! Entregamos no centro. Frete R$ 5. Pedido mínimo R$ 30.</p>
+                    <div className="gradient-wine rounded-xl px-3 py-1.5 max-w-[80%]">
+                      <p className="text-xs">Sim! Frete R$ 5. Pedido mínimo R$ 30.</p>
                     </div>
                   </div>
                   <div className="flex justify-start">
-                    <div className="bg-[#1a1a1a] rounded-xl px-3 py-1.5 max-w-[70%]">
+                    <div className="bg-[#1a1a1a] rounded-xl px-3 py-1.5 max-w-[80%]">
                       <p className="text-xs">Quanto tempo demora?</p>
                     </div>
                   </div>
                   <div className="flex justify-end">
-                    <div className="gradient-wine rounded-xl px-3 py-1.5 max-w-[70%]">
+                    <div className="gradient-wine rounded-xl px-3 py-1.5 max-w-[80%]">
                       <p className="text-xs">Média de 35 a 45 minutos. Quer fazer seu pedido?</p>
                     </div>
                   </div>
@@ -505,19 +505,19 @@ export default function LandingPage() {
             <p className="text-gray-400 text-lg">Tudo que seu negócio precisa, em um único plano.</p>
           </div>
 
-          <div className="max-w-lg mx-auto">
-            <div className="card-glass rounded-2xl p-10 flex flex-col gap-6 border-[#A61B4D]/50 glow-wine relative">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <span className="gradient-wine text-xs font-bold px-5 py-1.5 rounded-full tracking-wider">PLANO ÚNICO   TUDO INCLUSO</span>
+          <div className="max-w-md mx-auto px-2">
+            <div className="card-glass rounded-2xl p-6 md:p-10 flex flex-col gap-5 border-[#A61B4D]/50 glow-wine relative">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                <span className="gradient-wine text-xs font-bold px-4 py-1.5 rounded-full tracking-wider">PLANO ÚNICO   TUDO INCLUSO</span>
               </div>
               <div className="text-center pt-2">
                 <div className="flex items-end justify-center gap-1 mb-2">
-                  <span className="text-6xl font-black">R$ 499</span>
-                  <span className="text-2xl font-bold text-gray-400 mb-2">,90<span className="text-base">/mês</span></span>
+                  <span className="text-5xl md:text-6xl font-black">R$ 499</span>
+                  <span className="text-xl md:text-2xl font-bold text-gray-400 mb-1">,90<span className="text-sm md:text-base">/mês</span></span>
                 </div>
-                <p className="text-gray-400">Tudo que você precisa para automatizar seu atendimento de verdade</p>
+                <p className="text-gray-400 text-sm">Tudo que você precisa para automatizar seu atendimento de verdade</p>
               </div>
-              <div className="border-t border-[#2a2a2a] pt-6 grid grid-cols-2 gap-3">
+              <div className="border-t border-[#2a2a2a] pt-5 flex flex-col gap-2.5">
                 {[
                   'Números ilimitados de WhatsApp',
                   'Mensagens ilimitadas',
