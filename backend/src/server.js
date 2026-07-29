@@ -15,6 +15,7 @@ const conversationRoutes = require('./routes/conversations');
 const settingsRoutes = require('./routes/settings');
 const webhookRoutes = require('./routes/webhook');
 const dashboardRoutes = require('./routes/dashboard');
+const integrationsRoutes = require('./routes/integrations');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -69,6 +70,7 @@ app.use('/api/conversations', conversationRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/webhook', webhookRoutes);
+app.use('/api/integrations', integrationsRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'ChatNex API', version: '1.0.0' });
