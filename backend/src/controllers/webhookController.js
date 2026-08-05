@@ -1,6 +1,7 @@
 const prisma = require('../config/prisma');
 const aiService = require('../services/aiService');
 const evolutionService = require('../services/evolutionService');
+const { callExternalWebhook } = require('../services/externalWebhookService');
 
 // Debounce map: remoteJid -> { timer, contents, conversationId, instanceName, settings, clientName, companyId }
 const pendingAI = new Map();
@@ -140,6 +141,18 @@ const sendAIResponse = async ({ conversationId, instanceName, settings, remoteJi
       global.io.to(`company-${companyId}`).emit('stop-typing', { conversationId });
     }
 
+    // Notify external system about the AI response
+    if (lastSavedContent) {
+      callExternalWebhook({
+        settings,
+        companyId,
+        remoteJid,
+        clientName,
+        remetente: 'bot',
+        mensagem: aiResponse,
+      });
+    }
+
     if (needsHumanHandoff(aiResponse)) {
       await prisma.conversation.update({
         where: { id: conversationId },
@@ -153,6 +166,15 @@ const sendAIResponse = async ({ conversationId, instanceName, settings, remoteJi
           lastMessage: aiResponse,
         });
       }
+      // Notify external system that human handoff is needed
+      callExternalWebhook({
+        settings,
+        companyId,
+        remoteJid,
+        clientName,
+        remetente: 'bot',
+        aguardandoHumano: true,
+      });
     }
   } catch (error) {
     console.error('Erro ao gerar/enviar resposta IA:', error);
@@ -248,6 +270,16 @@ const handleNewMessage = async (payload) => {
         createdAt: new Date(),
       });
     }
+
+    // Notify external system (e.g. pousada) about the incoming client message
+    callExternalWebhook({
+      settings,
+      companyId: company.id,
+      remoteJid,
+      clientName,
+      remetente: 'hospede',
+      mensagem: messageContent,
+    });
 
     if (settings?.aiEnabled && settings?.autoReply) {
       let activeConversation = conversation;

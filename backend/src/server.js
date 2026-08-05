@@ -108,6 +108,8 @@ server.listen(PORT, async () => {
     `ALTER TABLE "IsOnWhatsapp" ADD COLUMN IF NOT EXISTS "lid" VARCHAR(100)`,
     `ALTER TABLE "Instance" ADD COLUMN IF NOT EXISTS "businessId" VARCHAR(100)`,
     `ALTER TABLE "Instance" ADD COLUMN IF NOT EXISTS "clientName" VARCHAR(100)`,
+    `ALTER TABLE "settings" ADD COLUMN IF NOT EXISTS "externalWebhookUrl" TEXT`,
+    `ALTER TABLE "settings" ADD COLUMN IF NOT EXISTS "externalWebhookKey" TEXT`,
   ];
 
   // Retry patches until DB connections are available (Evolution API may hold many on startup)

@@ -21,6 +21,9 @@ router.get('/', async (req, res) => {
       evolutionApiKey: settings.evolutionApiKey
         ? '***' + settings.evolutionApiKey.slice(-4)
         : null,
+      externalWebhookKey: settings.externalWebhookKey
+        ? '***' + settings.externalWebhookKey.slice(-4)
+        : null,
     };
 
     res.json({ settings: safeSettings });
@@ -43,15 +46,14 @@ router.put('/', async (req, res) => {
       products,
       faq,
       aiRules,
+      externalWebhookUrl,
+      externalWebhookKey,
     } = req.body;
 
     const existing = await prisma.settings.findUnique({
       where: { companyId: req.companyId },
     });
 
-    // Only update the fields the settings page can touch.
-    // Sensitive fields (openaiKey, openaiModel, evolutionApiUrl, evolutionApiKey)
-    // are intentionally excluded — they can only be changed via direct backend access.
     const data = {
       aiEnabled,
       autoReply,
@@ -64,7 +66,13 @@ router.put('/', async (req, res) => {
       products,
       faq,
       aiRules,
+      externalWebhookUrl,
     };
+
+    // Only overwrite the key if a real value (not the masked '***xxxx') is sent
+    if (externalWebhookKey && !externalWebhookKey.startsWith('***')) {
+      data.externalWebhookKey = externalWebhookKey;
+    }
 
     const settings = existing
       ? await prisma.settings.update({

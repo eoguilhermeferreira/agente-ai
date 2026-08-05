@@ -112,6 +112,8 @@ model Settings {
   aiRules             String?  @db.Text
   evolutionApiUrl     String?
   evolutionApiKey     String?
+  externalWebhookUrl  String?
+  externalWebhookKey  String?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
