@@ -19,6 +19,29 @@ const getEvolutionUrl = (settings) => {
   return settings?.evolutionApiUrl || process.env.EVOLUTION_API_URL;
 };
 
+const computeWebhookUrl = () => {
+  let backendUrl = (process.env.BACKEND_URL || '').trim().replace(/\/$/, '');
+  if (backendUrl && !backendUrl.startsWith('http')) backendUrl = `https://${backendUrl}`;
+  return backendUrl ? `${backendUrl}/api/webhook/evolution` : null;
+};
+
+const syncWebhook = async (evolutionClient, instanceName, webhookUrl) => {
+  if (!webhookUrl) return;
+  try {
+    await evolutionClient.post(`/webhook/set/${instanceName}`, {
+      webhook: {
+        enabled: true,
+        url: webhookUrl,
+        events: ['MESSAGES_UPSERT', 'CONNECTION_UPDATE', 'QRCODE_UPDATED'],
+        webhook_by_events: false,
+      },
+    });
+    console.log(`[Webhook] URL sincronizada: ${webhookUrl}`);
+  } catch (e) {
+    console.warn('[Webhook] Falha ao sincronizar URL (ignorando):', e.message?.slice(0, 100));
+  }
+};
+
 const getInstance = async (req, res) => {
   try {
     const instance = await prisma.whatsappInstance.findFirst({
@@ -52,9 +75,7 @@ const createInstance = async (req, res) => {
 
     const instanceName = `chatnex-${company.slug}`;
     const evolutionClient = getEvolutionClient(settings);
-    let backendUrl = process.env.BACKEND_URL || '';
-    if (backendUrl && !backendUrl.startsWith('http')) backendUrl = `https://${backendUrl}`;
-    const webhookUrl = `${backendUrl}/api/webhook/evolution`;
+    const webhookUrl = computeWebhookUrl();
 
     let qrCode = null;
     let instanceKey = null;
@@ -79,6 +100,9 @@ const createInstance = async (req, res) => {
 
       qrCode = evolutionResponse.data?.qrcode?.base64 || null;
       instanceKey = evolutionResponse.data?.hash?.apikey || null;
+
+      // Garante webhook correto logo após criação
+      await syncWebhook(evolutionClient, instanceName, webhookUrl);
 
       // Se não veio QR na criação, tenta buscar
       if (!qrCode) {
@@ -188,10 +212,14 @@ const getQrCode = async (req, res) => {
         null;
 
       if (qrCode) {
+        const freshWebhookUrl = computeWebhookUrl() || instance.webhookUrl;
         await prisma.whatsappInstance.update({
           where: { id: instance.id },
-          data: { qrCode, status: 'QR_CODE' },
+          data: { qrCode, status: 'QR_CODE', webhookUrl: freshWebhookUrl },
         });
+
+        // Garante que a Evolution API tem a URL de webhook correta
+        await syncWebhook(evolutionClient, instance.instanceName, freshWebhookUrl);
 
         if (global.io) {
           global.io.to(`company-${req.companyId}`).emit('qr-updated', { qrCode });
