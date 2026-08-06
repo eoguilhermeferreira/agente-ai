@@ -82,4 +82,41 @@ router.post('/send-message', async (req, res) => {
   }
 });
 
+// POST /api/integrations/human-resolved — recepcionista finalizou, IA retoma
+router.post('/human-resolved', async (req, res) => {
+  try {
+    const apiKey = req.headers['x-api-key'] || req.body.apiKey;
+    if (!apiKey) return res.status(401).json({ error: 'API key não fornecida' });
+
+    const companies = await prisma.company.findMany({ where: { isActive: true } });
+    const company = companies.find((c) => generateApiKey(c.id) === apiKey);
+    if (!company) return res.status(401).json({ error: 'API key inválida' });
+
+    const { remoteJid } = req.body;
+    if (!remoteJid) return res.status(400).json({ error: 'Campo obrigatório: remoteJid' });
+
+    const conversation = await prisma.conversation.findFirst({
+      where: { remoteJid, companyId: company.id },
+    });
+
+    if (!conversation) return res.status(404).json({ error: 'Conversa não encontrada' });
+
+    await prisma.conversation.update({
+      where: { id: conversation.id },
+      data: { aiEnabled: true, status: 'OPEN' },
+    });
+
+    if (global.io) {
+      global.io.to(`company-${company.id}`).emit('human-resolved', {
+        conversationId: conversation.id,
+      });
+    }
+
+    res.json({ ok: true, conversationId: conversation.id });
+  } catch (err) {
+    console.error('[Integrations] human-resolved error:', err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+});
+
 module.exports = router;

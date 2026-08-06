@@ -17,6 +17,23 @@ const HANDOFF_PHRASES = [
   'passarei para',
   'encaminhar para um',
   'humano irá atend',
+  'chamar a recepção',
+  'chamar um recepcionista',
+  'recepcionista irá',
+  'nossa equipe irá',
+  'nossa equipe vai',
+  'um de nossos atendentes',
+  'alguém da recepção',
+  'alguem da recepcao',
+  'falar com a recepção',
+  'vou transferir',
+  'preciso transferir',
+  'não tenho essa informação',
+  'nao tenho essa informacao',
+  'não possuo essa informação',
+  'prefiro não informar',
+  'melhor confirmar com',
+  'nossa equipe pode ajudar',
 ];
 
 const needsHumanHandoff = (text) => {
@@ -54,9 +71,10 @@ const sendAIResponse = async ({ conversationId, instanceName, settings, remoteJi
       global.io.to(`company-${companyId}`).emit('typing', { conversationId });
     }
 
-    // Fetch the most recent 20 messages (newest first, then reverse for chronological order)
+    // Fetch recent messages — only last 12h to reset context after long inactivity
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
     const messages = await prisma.message.findMany({
-      where: { conversationId },
+      where: { conversationId, createdAt: { gte: twelveHoursAgo } },
       orderBy: { createdAt: 'desc' },
       take: 20,
     });
@@ -154,7 +172,11 @@ const sendAIResponse = async ({ conversationId, instanceName, settings, remoteJi
     }
 
     if (needsHumanHandoff(aiResponse)) {
-      // Notify dashboard and external system, but keep AI running
+      // Disable AI for this conversation — human takes over
+      await prisma.conversation.update({
+        where: { id: conversationId },
+        data: { status: 'PENDING', aiEnabled: false },
+      });
       if (global.io) {
         global.io.to(`company-${companyId}`).emit('human-needed', {
           conversationId,
@@ -163,6 +185,7 @@ const sendAIResponse = async ({ conversationId, instanceName, settings, remoteJi
           lastMessage: aiResponse,
         });
       }
+      // Notify pousada system that human handoff is needed
       callExternalWebhook({
         settings,
         companyId,
@@ -278,34 +301,7 @@ const handleNewMessage = async (payload) => {
     });
 
     if (settings?.aiEnabled && settings?.autoReply) {
-      let activeConversation = conversation;
-
-      // Auto-reactivate AI if it was disabled (handoff) and no outbound
-      // message has been sent in the last 10 minutes
-      if (!conversation.aiEnabled) {
-        const lastOutbound = await prisma.message.findFirst({
-          where: { conversationId: conversation.id, fromMe: true },
-          orderBy: { createdAt: 'desc' },
-        });
-
-        const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
-        const lastOutboundMs = lastOutbound?.createdAt?.getTime() ?? 0;
-
-        if (lastOutboundMs < tenMinutesAgo) {
-          activeConversation = await prisma.conversation.update({
-            where: { id: conversation.id },
-            data: { status: 'OPEN', aiEnabled: true },
-          });
-          if (global.io) {
-            global.io.to(`company-${company.id}`).emit('human-resolved', {
-              conversationId: conversation.id,
-            });
-          }
-          console.log(`[AI] Reativada após 10min sem resposta — conv ${conversation.id}`);
-        }
-      }
-
-      if (activeConversation.aiEnabled) {
+      if (conversation.aiEnabled) {
         const debounceMs = (settings.responseDelay || 5) * 1000;
 
         const existing = pendingAI.get(remoteJid);
@@ -314,7 +310,7 @@ const handleNewMessage = async (payload) => {
         const timer = setTimeout(() => {
           pendingAI.delete(remoteJid);
           sendAIResponse({
-            conversationId: activeConversation.id,
+            conversationId: conversation.id,
             instanceName,
             settings,
             remoteJid,
@@ -323,7 +319,7 @@ const handleNewMessage = async (payload) => {
           });
         }, debounceMs);
 
-        pendingAI.set(remoteJid, { timer, conversationId: activeConversation.id });
+        pendingAI.set(remoteJid, { timer, conversationId: conversation.id });
       }
     }
   } catch (error) {
