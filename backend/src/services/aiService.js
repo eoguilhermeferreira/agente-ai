@@ -36,43 +36,61 @@ const generateResponse = async ({ settings, messages, clientName }) => {
   }
 };
 
-const SCOPE_RULE = `
-
-REGRA ABSOLUTA: Você deve atuar EXCLUSIVAMENTE conforme as instruções acima. Se o cliente perguntar qualquer coisa que não esteja relacionada ao seu papel definido acima, responda educadamente que só pode ajudar com assuntos da empresa e redirecione a conversa. Nunca responda perguntas fora do escopo definido no seu papel.`;
-
 const buildSystemPrompt = (settings, clientName) => {
-  const hasCustomPrompt = settings.systemPrompt && settings.systemPrompt.trim().length > 0;
-  const clientInfo = clientName ? `\nO cliente se chama ${clientName}.` : '';
+  const parts = [];
 
-  if (hasCustomPrompt) {
-    return `${settings.systemPrompt.trim()}${clientInfo}${SCOPE_RULE}`;
+  // 1. Instruções principais (prompt personalizado ou padrão)
+  if (settings.systemPrompt?.trim()) {
+    parts.push(settings.systemPrompt.trim());
+  } else {
+    parts.push(
+      `Você é um atendente virtual profissional e educado da empresa ${settings.businessName || 'nossa empresa'}.`,
+      '\n\nInstruções de comportamento:',
+      '\n- Responda sempre em português brasileiro',
+      '\n- Seja natural, como um atendente humano',
+      '\n- Respostas curtas e diretas',
+      '\n- Nunca invente informações',
+      '\n- Ao receber uma saudação, responda com uma saudação e pergunte como pode ajudar'
+    );
   }
 
-  // No custom prompt — build from individual fields with default guardrails
-  const parts = [
-    `Você é um atendente virtual profissional e educado da empresa ${settings.businessName || 'nossa empresa'}.`,
-  ];
+  // 2. Dados da empresa — SEMPRE incluídos, independente do prompt personalizado
+  const dataSection = [];
 
-  if (settings.businessName) parts.push(`\nEmpresa: ${settings.businessName}`);
-  if (settings.businessHours) parts.push(`\nHorário de funcionamento: ${settings.businessHours}`);
-  if (settings.businessAddress) parts.push(`\nEndereço: ${settings.businessAddress}`);
-  if (settings.businessPhone) parts.push(`\nTelefone: ${settings.businessPhone}`);
-  if (settings.products) parts.push(`\n\nProdutos/Serviços disponíveis:\n${settings.products}`);
-  if (settings.faq) parts.push(`\n\nPerguntas frequentes:\n${settings.faq}`);
-  if (settings.aiRules) parts.push(`\n\nRegras importantes:\n${settings.aiRules}`);
-  if (clientName) parts.push(clientInfo);
+  if (settings.businessName) dataSection.push(`Nome da empresa: ${settings.businessName}`);
+  if (settings.businessHours) dataSection.push(`Horário de funcionamento: ${settings.businessHours}`);
+  if (settings.businessAddress) dataSection.push(`Endereço: ${settings.businessAddress}`);
+  if (settings.businessPhone) dataSection.push(`Telefone: ${settings.businessPhone}`);
 
-  parts.push(
-    '\n\nInstruções de comportamento:',
-    '\n- Responda sempre em português brasileiro',
-    '\n- Seja natural, como um atendente humano',
-    '\n- Respostas curtas e diretas — sem informações extras não solicitadas',
-    '\n- Nunca invente informações',
-    '\n- Ao receber uma saudação, responda apenas com uma saudação e pergunte como pode ajudar',
-    '\n- Se não souber algo, diga que vai verificar ou chamar um atendente'
-  );
+  if (dataSection.length > 0) {
+    parts.push('\n\n--- DADOS DA EMPRESA ---\n' + dataSection.join('\n'));
+  }
 
-  parts.push(SCOPE_RULE);
+  // 3. Produtos/Serviços — SEMPRE incluídos
+  if (settings.products?.trim()) {
+    parts.push('\n\n--- PRODUTOS E SERVIÇOS ---\n' + settings.products.trim());
+  }
+
+  // 4. FAQ — SEMPRE incluído
+  if (settings.faq?.trim()) {
+    parts.push('\n\n--- PERGUNTAS FREQUENTES ---\n' + settings.faq.trim());
+  }
+
+  // 5. Regras da IA — SEMPRE incluídas
+  if (settings.aiRules?.trim()) {
+    parts.push('\n\n--- REGRAS ---\n' + settings.aiRules.trim());
+  }
+
+  // 6. Nome do cliente
+  if (clientName) {
+    parts.push(`\n\nO cliente se chama ${clientName}.`);
+  }
+
+  // 7. Regra de uso dos dados
+  parts.push(`\n\n--- INSTRUÇÃO IMPORTANTE ---
+Você tem acesso a todos os dados acima. Use-os para responder as perguntas do cliente com precisão.
+SOMENTE transfira para um atendente humano quando a pergunta exigir uma ação que depende de um humano (ex: confirmar disponibilidade em tempo real, fazer alterações em reservas, resolver reclamações graves) ou quando o cliente EXPLICITAMENTE pedir para falar com uma pessoa.
+Se a informação estiver nos dados acima, responda diretamente — não transfira desnecessariamente.`);
 
   return parts.join('');
 };
