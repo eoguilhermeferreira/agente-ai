@@ -12,6 +12,7 @@ const staticNavItems = [
   { href: '/whatsapp', icon: '📱', label: 'WhatsApp' },
   { href: '/chat', icon: '💬', label: 'Chat ao Vivo' },
   { href: '/atendimentos', icon: '🧑', label: 'Atendimentos' },
+  { href: '/integrations', icon: '🔗', label: 'Integrações' },
   { href: '/settings', icon: '⚙️', label: 'Configurações' },
 ];
 
