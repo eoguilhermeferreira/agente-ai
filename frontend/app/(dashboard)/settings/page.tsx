@@ -20,6 +20,8 @@ interface VisibleSettings {
   evolutionApiKey: string;
   openaiKey: string;
   openaiModel: string;
+  externalWebhookUrl: string;
+  externalWebhookKey: string;
 }
 
 export default function SettingsPage() {
@@ -38,6 +40,8 @@ export default function SettingsPage() {
     evolutionApiUrl: '',
     evolutionApiKey: '',
     openaiKey: '',
+    externalWebhookUrl: '',
+    externalWebhookKey: '',
     openaiModel: 'gpt-4o-mini',
   });
   const [loading, setLoading] = useState(true);
@@ -66,6 +70,8 @@ export default function SettingsPage() {
             evolutionApiKey: s.evolutionApiKey || '',
             openaiKey: s.openaiKey || '',
             openaiModel: s.openaiModel || 'gpt-4o-mini',
+            externalWebhookUrl: s.externalWebhookUrl || '',
+            externalWebhookKey: s.externalWebhookKey || '',
           });
         }
       } catch (e) {
@@ -299,6 +305,32 @@ export default function SettingsPage() {
                     type="password"
                     value={settings.evolutionApiKey}
                     onChange={(e) => update('evolutionApiKey', e.target.value)}
+                    placeholder="Cole a chave aqui para alterar"
+                    className="input-dark w-full rounded-lg px-4 py-2.5 text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Deixe em branco para manter a chave atual.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-[#2a2a2a] pt-5">
+              <p className="text-sm font-semibold text-gray-200 mb-4">Webhook Externo (sistema da pousada)</p>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">URL do Webhook</label>
+                  <input
+                    value={settings.externalWebhookUrl}
+                    onChange={(e) => update('externalWebhookUrl', e.target.value)}
+                    placeholder="https://xxx.supabase.co/rest/v1/rpc/registrar_evento_chatbot"
+                    className="input-dark w-full rounded-lg px-4 py-2.5 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Chave do Webhook (apikey Supabase)</label>
+                  <input
+                    type="password"
+                    value={settings.externalWebhookKey}
+                    onChange={(e) => update('externalWebhookKey', e.target.value)}
                     placeholder="Cole a chave aqui para alterar"
                     className="input-dark w-full rounded-lg px-4 py-2.5 text-sm"
                   />
