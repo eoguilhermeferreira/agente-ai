@@ -16,6 +16,10 @@ interface VisibleSettings {
   businessHours: string;
   businessAddress: string;
   businessPhone: string;
+  evolutionApiUrl: string;
+  evolutionApiKey: string;
+  openaiKey: string;
+  openaiModel: string;
 }
 
 export default function SettingsPage() {
@@ -31,10 +35,14 @@ export default function SettingsPage() {
     businessHours: '',
     businessAddress: '',
     businessPhone: '',
+    evolutionApiUrl: '',
+    evolutionApiKey: '',
+    openaiKey: '',
+    openaiModel: 'gpt-4o-mini',
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'ai' | 'company'>('ai');
+  const [activeTab, setActiveTab] = useState<'ai' | 'company' | 'api'>('ai');
 
   useEffect(() => {
     const load = async () => {
@@ -54,6 +62,10 @@ export default function SettingsPage() {
             businessHours: s.businessHours || '',
             businessAddress: s.businessAddress || '',
             businessPhone: s.businessPhone || '',
+            evolutionApiUrl: s.evolutionApiUrl || '',
+            evolutionApiKey: s.evolutionApiKey || '',
+            openaiKey: s.openaiKey || '',
+            openaiModel: s.openaiModel || 'gpt-4o-mini',
           });
         }
       } catch (e) {
@@ -93,6 +105,7 @@ export default function SettingsPage() {
   const tabs = [
     { key: 'ai', label: '🤖 Inteligência Artificial' },
     { key: 'company', label: '🏢 Dados da Empresa' },
+    { key: 'api', label: '🔑 Chaves de API' },
   ] as const;
 
   return (
@@ -264,6 +277,65 @@ export default function SettingsPage() {
               />
             </div>
           </>
+        )}
+
+        {activeTab === 'api' && (
+          <div className="space-y-5">
+            <div>
+              <p className="text-sm font-semibold text-gray-200 mb-4">Evolution API (WhatsApp)</p>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">URL da Evolution API</label>
+                  <input
+                    value={settings.evolutionApiUrl}
+                    onChange={(e) => update('evolutionApiUrl', e.target.value)}
+                    placeholder="https://sua-evolution.up.railway.app"
+                    className="input-dark w-full rounded-lg px-4 py-2.5 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">API Key da Evolution</label>
+                  <input
+                    type="password"
+                    value={settings.evolutionApiKey}
+                    onChange={(e) => update('evolutionApiKey', e.target.value)}
+                    placeholder="Cole a chave aqui para alterar"
+                    className="input-dark w-full rounded-lg px-4 py-2.5 text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Deixe em branco para manter a chave atual.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-[#2a2a2a] pt-5">
+              <p className="text-sm font-semibold text-gray-200 mb-4">OpenAI (Inteligência Artificial)</p>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">OpenAI API Key</label>
+                  <input
+                    type="password"
+                    value={settings.openaiKey}
+                    onChange={(e) => update('openaiKey', e.target.value)}
+                    placeholder="sk-..."
+                    className="input-dark w-full rounded-lg px-4 py-2.5 text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Deixe em branco para manter a chave atual.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Modelo</label>
+                  <select
+                    value={settings.openaiModel}
+                    onChange={(e) => update('openaiModel', e.target.value)}
+                    className="input-dark w-full rounded-lg px-4 py-2.5 text-sm"
+                  >
+                    <option value="gpt-4o-mini">gpt-4o-mini (recomendado)</option>
+                    <option value="gpt-4o">gpt-4o</option>
+                    <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
 
         <div className="pt-4 border-t border-[#2a2a2a]">

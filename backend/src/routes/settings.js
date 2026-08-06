@@ -48,6 +48,10 @@ router.put('/', async (req, res) => {
       aiRules,
       externalWebhookUrl,
       externalWebhookKey,
+      evolutionApiUrl,
+      evolutionApiKey,
+      openaiKey,
+      openaiModel,
     } = req.body;
 
     const existing = await prisma.settings.findUnique({
@@ -67,11 +71,19 @@ router.put('/', async (req, res) => {
       faq,
       aiRules,
       externalWebhookUrl,
+      ...(evolutionApiUrl !== undefined ? { evolutionApiUrl } : {}),
+      ...(openaiModel ? { openaiModel } : {}),
     };
 
-    // Only overwrite the key if a real value (not the masked '***xxxx') is sent
+    // Only overwrite secret keys if a real value (not the masked '***xxxx') is sent
     if (externalWebhookKey && !externalWebhookKey.startsWith('***')) {
       data.externalWebhookKey = externalWebhookKey;
+    }
+    if (evolutionApiKey && !evolutionApiKey.startsWith('***')) {
+      data.evolutionApiKey = evolutionApiKey;
+    }
+    if (openaiKey && !openaiKey.startsWith('***')) {
+      data.openaiKey = openaiKey;
     }
 
     const settings = existing
