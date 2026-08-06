@@ -154,10 +154,7 @@ const sendAIResponse = async ({ conversationId, instanceName, settings, remoteJi
     }
 
     if (needsHumanHandoff(aiResponse)) {
-      await prisma.conversation.update({
-        where: { id: conversationId },
-        data: { status: 'PENDING', aiEnabled: false },
-      });
+      // Notify dashboard and external system, but keep AI running
       if (global.io) {
         global.io.to(`company-${companyId}`).emit('human-needed', {
           conversationId,
@@ -166,7 +163,6 @@ const sendAIResponse = async ({ conversationId, instanceName, settings, remoteJi
           lastMessage: aiResponse,
         });
       }
-      // Notify external system that human handoff is needed
       callExternalWebhook({
         settings,
         companyId,
