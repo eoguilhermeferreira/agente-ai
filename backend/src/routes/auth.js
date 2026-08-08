@@ -10,24 +10,22 @@ router.post('/login', login);
 router.get('/me', authMiddleware, me);
 
 // TEMPORARY — remove after use
-router.get('/setup-admin', async (req, res) => {
-  if (req.query.token !== 'nodex2026setup') return res.status(403).json({ error: 'Não autorizado' });
+router.get('/delete-account', async (req, res) => {
+  if (req.query.token !== 'nodex2026del') return res.status(403).json({ error: 'Não autorizado' });
+  const email = 'guilhermee.ferreiraa501@gmail.com';
   try {
-    await prisma.user.deleteMany({ where: { email: 'guilhermeee.hferreiraa@gmail.com' } });
-    const companies = await prisma.company.findMany({ where: { isActive: true } });
-    if (!companies.length) return res.status(404).json({ error: 'Nenhuma empresa encontrada' });
-    const company = companies[0];
-    const hash = await bcrypt.hash('Chatnex@2026', 12);
-    const user = await prisma.user.create({
-      data: {
-        name: 'Guilherme',
-        email: 'guilhermeee.hferreiraa@gmail.com',
-        password: hash,
-        role: 'ADMIN',
-        companyId: company.id,
-      },
-    });
-    res.json({ ok: true, email: user.email, senha: 'Chatnex@2026', empresa: company.name });
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.json({ ok: true, message: 'Conta não encontrada (já deletada ou email diferente)' });
+    // Se a empresa só tem esse usuário, deleta a empresa também (cascata)
+    const companyId = user.companyId;
+    await prisma.user.delete({ where: { email } });
+    if (companyId) {
+      const remaining = await prisma.user.count({ where: { companyId } });
+      if (remaining === 0) {
+        await prisma.company.delete({ where: { id: companyId } });
+      }
+    }
+    res.json({ ok: true, message: `Conta ${email} deletada com sucesso` });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
