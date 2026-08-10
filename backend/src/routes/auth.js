@@ -16,16 +16,17 @@ router.get('/delete-test-company', async (req, res) => {
     const deleted = [];
     for (const email of emails) {
       const user = await prisma.user.findUnique({ where: { email } });
-      if (!user) continue;
+      if (!user || !user.companyId) continue;
       const companyId = user.companyId;
-      if (companyId) {
-        // Deleta a empresa inteira (cascade apaga instâncias, conversas, settings, usuários)
-        await prisma.company.delete({ where: { id: companyId } });
-        deleted.push(`empresa de ${email}`);
-      } else {
-        await prisma.user.delete({ where: { email } });
-        deleted.push(email);
-      }
+      // Delete em ordem para respeitar FK sem depender de cascade
+      await prisma.$executeRawUnsafe(`DELETE FROM "messages" WHERE "conversationId" IN (SELECT id FROM "conversations" WHERE "companyId" = '${companyId}')`);
+      await prisma.$executeRawUnsafe(`DELETE FROM "conversations" WHERE "companyId" = '${companyId}'`);
+      await prisma.$executeRawUnsafe(`DELETE FROM "messages" WHERE "conversationId" IN (SELECT id FROM "conversations" WHERE "instanceId" IN (SELECT id FROM "whatsapp_instances" WHERE "companyId" = '${companyId}'))`);
+      await prisma.$executeRawUnsafe(`DELETE FROM "whatsapp_instances" WHERE "companyId" = '${companyId}'`);
+      await prisma.$executeRawUnsafe(`DELETE FROM "settings" WHERE "companyId" = '${companyId}'`);
+      await prisma.$executeRawUnsafe(`DELETE FROM "users" WHERE "companyId" = '${companyId}'`);
+      await prisma.$executeRawUnsafe(`DELETE FROM "companies" WHERE "id" = '${companyId}'`);
+      deleted.push(email);
     }
     res.json({ ok: true, deleted: deleted.length ? deleted : ['nada encontrado'] });
   } catch (e) {
