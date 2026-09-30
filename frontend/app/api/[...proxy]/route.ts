@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND = process.env.BACKEND_URL || 'http://localhost:3001';
+const BACKEND = process.env.BACKEND_URL || 'https://agente-ai-production-e677.up.railway.app';
 
 async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname.replace('/api', '');
