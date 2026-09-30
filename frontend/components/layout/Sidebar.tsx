@@ -4,16 +4,16 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { io, Socket } from 'socket.io-client';
+import { LayoutDashboard, Smartphone, MessageSquare, Headphones, Settings } from 'lucide-react';
 import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 
 const staticNavItems = [
-  { href: '/dashboard', icon: '⬛', label: 'Dashboard' },
-  { href: '/whatsapp', icon: '📱', label: 'WhatsApp' },
-  { href: '/chat', icon: '💬', label: 'Chat ao Vivo' },
-  { href: '/atendimentos', icon: '🧑', label: 'Atendimentos' },
-  { href: '/integrations', icon: '🔗', label: 'Integrações' },
-  { href: '/settings', icon: '⚙️', label: 'Configurações' },
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/whatsapp', icon: Smartphone, label: 'WhatsApp' },
+  { href: '/chat', icon: MessageSquare, label: 'Chat ao Vivo' },
+  { href: '/atendimentos', icon: Headphones, label: 'Atendimentos' },
+  { href: '/settings', icon: Settings, label: 'Configurações' },
 ];
 
 export default function Sidebar() {
@@ -103,6 +103,7 @@ export default function Sidebar() {
         {staticNavItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           const isAtendimentos = item.href === '/atendimentos';
+          const Icon = item.icon;
           return (
             <Link
               key={item.href}
@@ -111,7 +112,7 @@ export default function Sidebar() {
                 isActive ? 'active text-[#A61B4D]' : 'text-gray-400'
               }`}
             >
-              <span className="text-lg">{item.icon}</span>
+              <Icon size={18} strokeWidth={1.75} />
               <span className="flex-1">{item.label}</span>
               {isAtendimentos && pendingCount > 0 && (
                 <span className="w-5 h-5 bg-red-600 rounded-full text-xs flex items-center justify-center text-white font-bold flex-shrink-0">
