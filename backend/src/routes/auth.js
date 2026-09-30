@@ -9,18 +9,32 @@ router.post('/login', login);
 router.get('/me', authMiddleware, me);
 
 // TEMPORARY — remove after use
-router.get('/diag', async (req, res) => {
-  if (req.query.token !== 'nodex2026diag') return res.status(403).json({ error: 'Não autorizado' });
-  const email = req.query.email;
-  if (!email) return res.status(400).json({ error: 'Informe ?email=' });
-  const user = await prisma.user.findUnique({ where: { email }, include: { company: { include: { settings: true, whatsappInstances: true, conversations: { take: 5, orderBy: { lastMessageAt: 'desc' }, select: { id: true, clientPhone: true, aiEnabled: true, status: true, lastMessageAt: true } } } } } });
-  if (!user) return res.json({ error: 'Usuário não encontrado' });
-  const s = user.company?.settings;
+router.get('/fix-ai', async (req, res) => {
+  if (req.query.token !== 'nodex2026fix') return res.status(403).json({ error: 'Não autorizado' });
+  const email = 'estatineto@icloud.com';
+  const user = await prisma.user.findUnique({ where: { email }, include: { company: { include: { settings: true, whatsappInstances: true } } } });
+  if (!user?.company) return res.json({ error: 'Empresa não encontrada' });
+  const companyId = user.company.id;
+  const s = user.company.settings;
+
+  // 1. Garantir que AI está ativa nas settings
+  await prisma.settings.update({ where: { companyId }, data: { aiEnabled: true, autoReply: true } });
+
+  // 2. Reativar AI em todas as conversas bloqueadas
+  const updated = await prisma.conversation.updateMany({
+    where: { companyId, aiEnabled: false },
+    data: { aiEnabled: true, status: 'OPEN' },
+  });
+
   res.json({
-    company: user.company?.name,
-    settings: { aiEnabled: s?.aiEnabled, autoReply: s?.autoReply, hasOpenaiKey: !!s?.openaiKey, hasEvolutionUrl: !!s?.evolutionApiUrl, hasEvolutionKey: !!s?.evolutionApiKey, hasWebhookUrl: !!s?.externalWebhookUrl },
-    instance: user.company?.whatsappInstances?.[0] ? { name: user.company.whatsappInstances[0].instanceName, status: user.company.whatsappInstances[0].status, webhookUrl: user.company.whatsappInstances[0].webhookUrl } : null,
-    recentConversations: user.company?.conversations,
+    ok: true,
+    company: user.company.name,
+    settingsAiEnabled: s?.aiEnabled,
+    settingsAutoReply: s?.autoReply,
+    hasOpenaiKey: !!s?.openaiKey,
+    hasEvolutionUrl: !!s?.evolutionApiUrl,
+    instance: user.company.whatsappInstances?.[0]?.status,
+    conversationsReactivated: updated.count,
   });
 });
 
