@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Bot, Building2, KeyRound } from 'lucide-react';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 
@@ -109,9 +110,9 @@ export default function SettingsPage() {
   }
 
   const tabs = [
-    { key: 'ai', label: '🤖 Inteligência Artificial' },
-    { key: 'company', label: '🏢 Dados da Empresa' },
-    { key: 'api', label: '🔑 Chaves de API' },
+    { key: 'ai', label: 'Inteligência Artificial', icon: Bot },
+    { key: 'company', label: 'Dados da Empresa', icon: Building2 },
+    { key: 'api', label: 'Chaves de API', icon: KeyRound },
   ] as const;
 
   return (
@@ -123,19 +124,23 @@ export default function SettingsPage() {
 
       {/* Tabs */}
       <div className="flex gap-2 mb-6">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              activeTab === tab.key
-                ? 'bg-[#A61B4D] text-white'
-                : 'bg-[#1a1a1a] text-gray-400 hover:bg-[#2a2a2a]'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeTab === tab.key
+                  ? 'bg-[#A61B4D] text-white'
+                  : 'bg-[#1a1a1a] text-gray-400 hover:bg-[#2a2a2a]'
+              }`}
+            >
+              <Icon size={15} strokeWidth={1.75} />
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       <div className="card-glass rounded-xl p-6 space-y-6">
