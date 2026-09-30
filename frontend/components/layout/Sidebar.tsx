@@ -82,7 +82,6 @@ export default function Sidebar() {
           </div>
           <div>
             <p className="font-bold text-base">Chat<span className="text-gradient">Nex</span></p>
-            <p className="text-xs text-gray-500">by Nodex</p>
           </div>
         </div>
       </div>
