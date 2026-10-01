@@ -84,6 +84,15 @@ export default function SettingsPage() {
     load();
   }, []);
 
+  const reactivateAI = async () => {
+    try {
+      const res = await api.get('/auth/sync-status?token=nodex2026fix');
+      toast.success(`IA reativada! ${res.data.conversationsReactivated} conversa(s) desbloqueada(s)`);
+    } catch {
+      toast.error('Erro ao reativar IA');
+    }
+  };
+
   const save = async () => {
     setSaving(true);
     try {
@@ -290,13 +299,19 @@ export default function SettingsPage() {
         )}
 
 
-        <div className="pt-4 border-t border-[#2a2a2a]">
+        <div className="pt-4 border-t border-[#2a2a2a] flex items-center gap-4">
           <button
             onClick={save}
             disabled={saving}
             className="btn-wine px-8 py-3 rounded-lg font-medium text-sm disabled:opacity-50"
           >
             {saving ? 'Salvando...' : 'Salvar Configurações'}
+          </button>
+          <button
+            onClick={reactivateAI}
+            className="px-6 py-3 rounded-lg font-medium text-sm bg-[#1a1a1a] text-gray-400 hover:bg-[#2a2a2a] transition-all"
+          >
+            Reativar IA
           </button>
         </div>
       </div>
