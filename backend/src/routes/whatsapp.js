@@ -7,6 +7,7 @@ const {
   getQrCode,
   disconnectInstance,
   getStatus,
+  syncWebhookEndpoint,
 } = require('../controllers/whatsappController');
 
 router.use(auth);
@@ -15,6 +16,7 @@ router.post('/instance', createInstance);
 router.get('/qrcode', getQrCode);
 router.delete('/instance', disconnectInstance);
 router.get('/status', getStatus);
+router.post('/sync-webhook', syncWebhookEndpoint);
 
 module.exports = router;
 

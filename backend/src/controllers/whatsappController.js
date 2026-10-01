@@ -228,6 +228,14 @@ const getQrCode = async (req, res) => {
         return res.json({ qrCode });
       }
 
+      // Instance is connected — ensure webhook is still registered
+      const freshWebhookUrl = computeWebhookUrl() || instance.webhookUrl;
+      if (freshWebhookUrl) {
+        await syncWebhook(evolutionClient, instance.instanceName, freshWebhookUrl);
+        if (freshWebhookUrl !== instance.webhookUrl) {
+          await prisma.whatsappInstance.update({ where: { id: instance.id }, data: { webhookUrl: freshWebhookUrl } });
+        }
+      }
       return res.json({ qrCode: instance.qrCode || null });
     } catch (apiError) {
       const errData = apiError.response?.data;
@@ -315,4 +323,20 @@ const getStatus = async (req, res) => {
   }
 };
 
-module.exports = { getInstance, createInstance, getQrCode, disconnectInstance, getStatus };
+const syncWebhookEndpoint = async (req, res) => {
+  try {
+    const instance = await prisma.whatsappInstance.findFirst({ where: { companyId: req.companyId } });
+    if (!instance) return res.status(404).json({ error: 'Instância não encontrada' });
+    const settings = await prisma.settings.findUnique({ where: { companyId: req.companyId } });
+    const evolutionClient = getEvolutionClient(settings || {});
+    const webhookUrl = computeWebhookUrl() || instance.webhookUrl;
+    if (!webhookUrl) return res.status(400).json({ error: 'BACKEND_URL não configurado' });
+    await syncWebhook(evolutionClient, instance.instanceName, webhookUrl);
+    await prisma.whatsappInstance.update({ where: { id: instance.id }, data: { webhookUrl } });
+    res.json({ ok: true, webhookUrl, instance: instance.instanceName });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { getInstance, createInstance, getQrCode, disconnectInstance, getStatus, syncWebhookEndpoint };

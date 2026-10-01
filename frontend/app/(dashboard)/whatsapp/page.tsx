@@ -99,6 +99,15 @@ export default function WhatsAppPage() {
     }
   };
 
+  const handleSyncWebhook = async () => {
+    try {
+      await api.post('/whatsapp/sync-webhook');
+      toast.success('Webhook sincronizado! Mensagens voltarão a funcionar.');
+    } catch {
+      toast.error('Erro ao sincronizar webhook');
+    }
+  };
+
   const handleDisconnect = async () => {
     if (!confirm('Deseja desconectar o WhatsApp?')) return;
     try {
@@ -219,12 +228,20 @@ export default function WhatsAppPage() {
                 Instância: <code className="text-[#A61B4D]">{instance.instanceName}</code>
               </p>
               <p className="text-gray-500 text-sm mb-6">A IA está respondendo automaticamente seus clientes</p>
-              <button
-                onClick={handleDisconnect}
-                className="px-6 py-2 rounded-lg border border-red-500/30 text-red-400 text-sm hover:bg-red-500/10 transition-all"
-              >
-                Desconectar
-              </button>
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={handleSyncWebhook}
+                  className="px-6 py-2 rounded-lg border border-[#A61B4D]/30 text-[#A61B4D] text-sm hover:bg-[#A61B4D]/10 transition-all"
+                >
+                  Sincronizar Webhook
+                </button>
+                <button
+                  onClick={handleDisconnect}
+                  className="px-6 py-2 rounded-lg border border-red-500/30 text-red-400 text-sm hover:bg-red-500/10 transition-all"
+                >
+                  Desconectar
+                </button>
+              </div>
             </div>
           )}
 
