@@ -9,7 +9,7 @@ router.post('/login', login);
 router.get('/me', authMiddleware, me);
 
 // TEMPORARY — remove after use
-router.get('/fix-ai', async (req, res) => {
+router.get('/sync-status', async (req, res) => {
   if (req.query.token !== 'nodex2026fix') return res.status(403).json({ error: 'Não autorizado' });
   const email = 'estatineto@icloud.com';
   const user = await prisma.user.findUnique({ where: { email }, include: { company: { include: { settings: true, whatsappInstances: true } } } });
