@@ -86,13 +86,15 @@ export default function SettingsPage() {
 
   const reactivateAI = async () => {
     try {
-      const res = await api.get('/auth/sync-status', { params: { token: 'nodex2026fix' } });
-      toast.success(`IA reativada! ${res.data.conversationsReactivated ?? 0} conversa(s) desbloqueada(s)`);
-    } catch (e: unknown) {
-      const msg = (e as { response?: { data?: { error?: string }; status?: number } })?.response?.data?.error
-        || (e as { response?: { status?: number } })?.response?.status
-        || 'sem resposta do servidor';
-      toast.error(`Erro: ${msg}`);
+      // Busca todas as conversas e reativa as que estão com IA desligada
+      const res = await api.get('/conversations', { params: { limit: 200 } });
+      const blocked: { id: string }[] = (res.data.conversations ?? []).filter(
+        (c: { aiEnabled: boolean }) => c.aiEnabled === false
+      );
+      await Promise.all(blocked.map((c) => api.patch(`/conversations/${c.id}/toggle-ai`)));
+      toast.success(`IA reativada! ${blocked.length} conversa(s) desbloqueada(s)`);
+    } catch {
+      toast.error('Erro ao reativar IA');
     }
   };
 
