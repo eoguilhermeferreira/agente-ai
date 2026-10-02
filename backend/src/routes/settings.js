@@ -76,13 +76,20 @@ router.put('/', async (req, res) => {
     };
 
     // Only overwrite secret keys if a real value (not the masked '***xxxx') is sent
-    if (externalWebhookKey && !externalWebhookKey.startsWith('***')) {
+    // Empty string explicitly clears the key (falls back to env var)
+    if (externalWebhookKey === '') {
+      data.externalWebhookKey = null;
+    } else if (externalWebhookKey && !externalWebhookKey.startsWith('***')) {
       data.externalWebhookKey = externalWebhookKey;
     }
-    if (evolutionApiKey && !evolutionApiKey.startsWith('***')) {
+    if (evolutionApiKey === '') {
+      data.evolutionApiKey = null;
+    } else if (evolutionApiKey && !evolutionApiKey.startsWith('***')) {
       data.evolutionApiKey = evolutionApiKey;
     }
-    if (openaiKey && !openaiKey.startsWith('***')) {
+    if (openaiKey === '') {
+      data.openaiKey = null;
+    } else if (openaiKey && !openaiKey.startsWith('***')) {
       data.openaiKey = openaiKey;
     }
 
