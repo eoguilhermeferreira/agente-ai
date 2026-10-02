@@ -240,7 +240,7 @@ function ChatContent() {
   };
 
   return (
-    <div className="h-[calc(100vh-64px)] md:h-screen flex overflow-hidden">
+    <div className="h-[calc(100dvh-64px)] md:h-screen flex overflow-hidden w-full max-w-full">
       {/* Conversations list — hidden on mobile when chat is open */}
       <div className={`${mobileShowChat ? 'hidden' : 'flex'} md:flex w-full md:w-80 border-r border-[#1a1a1a] flex-col bg-[#0D0D0D] flex-shrink-0`}>
         <div className="p-4 border-b border-[#1a1a1a]">
@@ -301,35 +301,35 @@ function ChatContent() {
         ) : (
           <>
             {/* Chat header */}
-            <div className="px-4 py-3 border-b border-[#1a1a1a] flex items-center justify-between bg-[#0D0D0D]">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setMobileShowChat(false)}
-                  className="md:hidden p-1 text-gray-400 hover:text-white"
-                >
-                  <ArrowLeft size={20} />
-                </button>
-                <div className="w-10 h-10 gradient-wine rounded-full flex items-center justify-center text-sm font-bold">
-                  {(selected.clientName || selected.clientPhone)?.[0]?.toUpperCase()}
-                </div>
-                <div>
-                  <p className="font-medium">{selected.clientName || selected.clientPhone}</p>
-                  {isTyping ? (
-                    <p className="text-xs text-[#A61B4D] animate-pulse">IA digitando...</p>
-                  ) : (
-                    <p className="text-xs text-gray-500">{selected.clientPhone}</p>
-                  )}
-                </div>
+            <div className="px-3 py-3 border-b border-[#1a1a1a] flex items-center gap-2 bg-[#0D0D0D] min-w-0">
+              <button
+                onClick={() => setMobileShowChat(false)}
+                className="md:hidden p-1 text-gray-400 hover:text-white flex-shrink-0"
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <div className="w-9 h-9 gradient-wine rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                {(selected.clientName || selected.clientPhone)?.[0]?.toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate text-sm">{selected.clientName || selected.clientPhone}</p>
+                {isTyping ? (
+                  <p className="text-xs text-[#A61B4D] animate-pulse">IA digitando...</p>
+                ) : (
+                  <p className="text-xs text-gray-500 truncate">{selected.clientPhone}</p>
+                )}
               </div>
               <button
                 onClick={toggleAI}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   selected.aiEnabled
                     ? 'bg-[#A61B4D]/20 text-[#A61B4D] hover:bg-[#A61B4D]/30'
                     : 'bg-[#1a1a1a] text-gray-500 hover:bg-[#2a2a2a]'
                 }`}
               >
-                <Bot size={13} strokeWidth={1.75} /> IA {selected.aiEnabled ? 'Ativa' : 'Inativa'}
+                <Bot size={13} strokeWidth={1.75} />
+                <span className="hidden sm:inline">IA {selected.aiEnabled ? 'Ativa' : 'Inativa'}</span>
+                <span className="sm:hidden">{selected.aiEnabled ? 'ON' : 'OFF'}</span>
               </button>
             </div>
 
