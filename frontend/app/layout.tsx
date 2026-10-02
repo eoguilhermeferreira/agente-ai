@@ -11,7 +11,9 @@ export const metadata: Metadata = {
   description:
     'Plataforma SaaS de atendimento automático via WhatsApp com inteligência artificial. Por Nodex.',
   icons: {
-    icon: '/chatnex-icon.png',
+    icon: [
+      { url: '/chatnex-icon.png', type: 'image/png' },
+    ],
     apple: '/chatnex-icon.png',
   },
 };
