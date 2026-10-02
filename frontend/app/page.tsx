@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import FlowArt, { FlowSection } from '@/components/ui/story-scroll';
 
@@ -636,17 +637,18 @@ export default function LandingPage() {
               <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
               <Link href="/login" className="hover:text-white transition-colors">Login</Link>
             </div>
-            <p className="text-sm text-gray-600">
-              © 2026 ChatNex · Desenvolvido pela{' '}
-              <a
-                href="https://instagram.com/agencynodex"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#A61B4D] hover:text-white transition-colors underline underline-offset-2"
-              >
-                Nodex
+            <div className="flex flex-col items-center md:items-end gap-1">
+              <p className="text-xs text-gray-600">Desenvolvido por</p>
+              <a href="https://instagram.com/agencynodex" target="_blank" rel="noopener noreferrer">
+                <Image
+                  src="/nodex-logo.png"
+                  alt="Nodex — Agência de Marketing Digital"
+                  width={120}
+                  height={35}
+                  className="opacity-60 hover:opacity-100 transition-opacity"
+                />
               </a>
-            </p>
+            </div>
           </div>
         </div>
       </footer>
