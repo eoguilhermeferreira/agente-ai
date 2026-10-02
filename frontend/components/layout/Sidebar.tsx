@@ -74,30 +74,78 @@ export default function Sidebar() {
   }, [company?.id]);
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-[#0D0D0D] border-r border-[#1a1a1a] flex flex-col z-40">
-      {/* Logo */}
-      <div className="p-6 border-b border-[#1a1a1a]">
-        <div className="flex items-center gap-3">
-          <Image src="/chatnex-icon.png" alt="ChatNex" width={36} height={36} className="rounded-lg" />
-          <div>
-            <p className="font-bold text-base">Chat<span className="text-gradient">Nex</span></p>
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex fixed left-0 top-0 h-full w-64 bg-[#0D0D0D] border-r border-[#1a1a1a] flex-col z-40">
+        {/* Logo */}
+        <div className="p-6 border-b border-[#1a1a1a]">
+          <div className="flex items-center gap-3">
+            <Image src="/chatnex-icon.png" alt="ChatNex" width={36} height={36} className="rounded-lg" />
+            <div>
+              <p className="font-bold text-base">Chat<span className="text-gradient">Nex</span></p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Company info */}
-      {company && (
-        <div className="px-4 py-3 mx-3 mt-3 bg-[#141414] rounded-lg border border-[#1a1a1a]">
-          <p className="text-xs text-gray-500">Empresa</p>
-          <p className="text-sm font-medium truncate">{company.name}</p>
-          <span className="inline-block text-xs bg-[#A61B4D]/20 text-[#A61B4D] px-2 py-0.5 rounded-full mt-1">
-            {company.plan}
-          </span>
+        {/* Company info */}
+        {company && (
+          <div className="px-4 py-3 mx-3 mt-3 bg-[#141414] rounded-lg border border-[#1a1a1a]">
+            <p className="text-xs text-gray-500">Empresa</p>
+            <p className="text-sm font-medium truncate">{company.name}</p>
+            <span className="inline-block text-xs bg-[#A61B4D]/20 text-[#A61B4D] px-2 py-0.5 rounded-full mt-1">
+              {company.plan}
+            </span>
+          </div>
+        )}
+
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-4 space-y-1">
+          {staticNavItems.map((item) => {
+            const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+            const isAtendimentos = item.href === '/atendimentos';
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`sidebar-item flex items-center gap-3 px-3 py-2.5 text-sm font-medium w-full ${
+                  isActive ? 'active text-[#A61B4D]' : 'text-gray-400'
+                }`}
+              >
+                <Icon size={18} strokeWidth={1.75} />
+                <span className="flex-1">{item.label}</span>
+                {isAtendimentos && pendingCount > 0 && (
+                  <span className="w-5 h-5 bg-red-600 rounded-full text-xs flex items-center justify-center text-white font-bold flex-shrink-0">
+                    {pendingCount > 9 ? '9+' : pendingCount}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* User */}
+        <div className="p-4 border-t border-[#1a1a1a]">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-8 h-8 gradient-wine rounded-full flex items-center justify-center text-xs font-bold">
+              {user?.name?.[0]?.toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{user?.name}</p>
+              <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+            </div>
+          </div>
+          <button
+            onClick={logout}
+            className="w-full text-xs text-gray-500 hover:text-[#A61B4D] py-2 rounded-lg hover:bg-[#1a1a1a] transition-all"
+          >
+            Sair da conta
+          </button>
         </div>
-      )}
+      </aside>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      {/* Mobile bottom nav */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0D0D0D] border-t border-[#1a1a1a] flex items-center justify-around px-2 py-2">
         {staticNavItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           const isAtendimentos = item.href === '/atendimentos';
@@ -106,14 +154,16 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`sidebar-item flex items-center gap-3 px-3 py-2.5 text-sm font-medium w-full ${
-                isActive ? 'active text-[#A61B4D]' : 'text-gray-400'
+              className={`relative flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-all ${
+                isActive ? 'text-[#A61B4D]' : 'text-gray-500'
               }`}
             >
-              <Icon size={18} strokeWidth={1.75} />
-              <span className="flex-1">{item.label}</span>
+              <Icon size={22} strokeWidth={1.75} />
+              <span className="text-[10px] font-medium leading-none">
+                {item.label === 'Inteligência Artificial' ? 'IA' : item.label === 'Configurações' ? 'Config' : item.label === 'Chat ao Vivo' ? 'Chat' : item.label === 'Atendimentos' ? 'Atend.' : item.label}
+              </span>
               {isAtendimentos && pendingCount > 0 && (
-                <span className="w-5 h-5 bg-red-600 rounded-full text-xs flex items-center justify-center text-white font-bold flex-shrink-0">
+                <span className="absolute -top-1 right-1 w-4 h-4 bg-red-600 rounded-full text-[9px] flex items-center justify-center text-white font-bold">
                   {pendingCount > 9 ? '9+' : pendingCount}
                 </span>
               )}
@@ -121,25 +171,6 @@ export default function Sidebar() {
           );
         })}
       </nav>
-
-      {/* User */}
-      <div className="p-4 border-t border-[#1a1a1a]">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 gradient-wine rounded-full flex items-center justify-center text-xs font-bold">
-            {user?.name?.[0]?.toUpperCase()}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{user?.name}</p>
-            <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-          </div>
-        </div>
-        <button
-          onClick={logout}
-          className="w-full text-xs text-gray-500 hover:text-[#A61B4D] py-2 rounded-lg hover:bg-[#1a1a1a] transition-all"
-        >
-          Sair da conta
-        </button>
-      </div>
-    </aside>
+    </>
   );
 }

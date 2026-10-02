@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { io, Socket } from 'socket.io-client';
-import { MessageSquare, Bot } from 'lucide-react';
+import { MessageSquare, Bot, ArrowLeft } from 'lucide-react';
 import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Conversation, Message } from '@/types';
@@ -22,6 +22,7 @@ function ChatContent() {
   const [loadingConvs, setLoadingConvs] = useState(true);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [mobileShowChat, setMobileShowChat] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const loadedConvRef = useRef<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
@@ -163,6 +164,7 @@ function ChatContent() {
 
   const selectConversation = async (conv: Conversation) => {
     setSelected(conv);
+    setMobileShowChat(true);
     setLoadingMsgs(true);
     try {
       const res = await api.get(`/conversations/${conv.id}/messages`);
@@ -238,9 +240,9 @@ function ChatContent() {
   };
 
   return (
-    <div className="h-screen flex">
-      {/* Conversations list */}
-      <div className="w-80 border-r border-[#1a1a1a] flex flex-col bg-[#0D0D0D]">
+    <div className="h-[calc(100vh-64px)] md:h-screen flex overflow-hidden">
+      {/* Conversations list — hidden on mobile when chat is open */}
+      <div className={`${mobileShowChat ? 'hidden' : 'flex'} md:flex w-full md:w-80 border-r border-[#1a1a1a] flex-col bg-[#0D0D0D] flex-shrink-0`}>
         <div className="p-4 border-b border-[#1a1a1a]">
           <h2 className="font-semibold text-lg">Chat ao Vivo</h2>
           <p className="text-xs text-gray-500 mt-1">{conversations.length} conversa(s)</p>
@@ -286,8 +288,8 @@ function ChatContent() {
         </div>
       </div>
 
-      {/* Chat area */}
-      <div className="flex-1 flex flex-col">
+      {/* Chat area — hidden on mobile when list is shown */}
+      <div className={`${!mobileShowChat ? 'hidden' : 'flex'} md:flex flex-1 flex-col`}>
         {!selected ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
@@ -299,8 +301,14 @@ function ChatContent() {
         ) : (
           <>
             {/* Chat header */}
-            <div className="px-6 py-4 border-b border-[#1a1a1a] flex items-center justify-between bg-[#0D0D0D]">
+            <div className="px-4 py-3 border-b border-[#1a1a1a] flex items-center justify-between bg-[#0D0D0D]">
               <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setMobileShowChat(false)}
+                  className="md:hidden p-1 text-gray-400 hover:text-white"
+                >
+                  <ArrowLeft size={20} />
+                </button>
                 <div className="w-10 h-10 gradient-wine rounded-full flex items-center justify-center text-sm font-bold">
                   {(selected.clientName || selected.clientPhone)?.[0]?.toUpperCase()}
                 </div>
