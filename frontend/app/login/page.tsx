@@ -28,11 +28,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="h-screen overflow-hidden bg-[#0D0D0D] flex items-center justify-center px-4">
+    <div className="fixed inset-0 bg-[#0D0D0D] overflow-y-auto">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-[#A61B4D]/5 rounded-full blur-3xl" />
       </div>
 
+      <div className="min-h-full flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md relative">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -89,6 +90,7 @@ export default function LoginPage() {
             className="opacity-70 hover:opacity-100 transition-opacity"
           />
         </div>
+      </div>
       </div>
     </div>
   );
