@@ -240,7 +240,7 @@ function ChatContent() {
   };
 
   return (
-    <div className="flex h-[100dvh] md:h-screen w-full overflow-hidden">
+    <div className="flex h-[calc(100dvh-4rem)] md:h-screen w-full overflow-hidden">
       {/* Conversations list — full screen on mobile when visible */}
       <div className={`${mobileShowChat ? 'hidden' : 'flex'} md:flex w-full md:w-80 flex-shrink-0 flex-col border-r border-[#1a1a1a] bg-[#0D0D0D]`}>
         {/* list header — fixed */}

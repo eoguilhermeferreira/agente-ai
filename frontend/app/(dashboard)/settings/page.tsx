@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Bot, Building2, Link2 } from 'lucide-react';
+import { Bot, Building2 } from 'lucide-react';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 
@@ -17,12 +17,7 @@ interface VisibleSettings {
   businessHours: string;
   businessAddress: string;
   businessPhone: string;
-  evolutionApiUrl: string;
-  evolutionApiKey: string;
-  openaiKey: string;
   openaiModel: string;
-  externalWebhookUrl: string;
-  externalWebhookKey: string;
 }
 
 export default function SettingsPage() {
@@ -38,16 +33,11 @@ export default function SettingsPage() {
     businessHours: '',
     businessAddress: '',
     businessPhone: '',
-    evolutionApiUrl: '',
-    evolutionApiKey: '',
-    openaiKey: '',
-    externalWebhookUrl: '',
-    externalWebhookKey: '',
     openaiModel: 'gpt-4o-mini',
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'ai' | 'company' | 'integrations'>('ai');
+  const [activeTab, setActiveTab] = useState<'ai' | 'company'>('ai');
 
   useEffect(() => {
     const load = async () => {
@@ -67,12 +57,7 @@ export default function SettingsPage() {
             businessHours: s.businessHours || '',
             businessAddress: s.businessAddress || '',
             businessPhone: s.businessPhone || '',
-            evolutionApiUrl: s.evolutionApiUrl || '',
-            evolutionApiKey: s.evolutionApiKey || '',
-            openaiKey: s.openaiKey || '',
             openaiModel: s.openaiModel || 'gpt-4o-mini',
-            externalWebhookUrl: s.externalWebhookUrl || '',
-            externalWebhookKey: s.externalWebhookKey || '',
           });
         }
       } catch (e) {
@@ -83,20 +68,6 @@ export default function SettingsPage() {
     };
     load();
   }, []);
-
-  const reactivateAI = async () => {
-    try {
-      // Busca todas as conversas e reativa as que estão com IA desligada
-      const res = await api.get('/conversations', { params: { limit: 200 } });
-      const blocked: { id: string }[] = (res.data.conversations ?? []).filter(
-        (c: { aiEnabled: boolean }) => c.aiEnabled === false
-      );
-      await Promise.all(blocked.map((c) => api.patch(`/conversations/${c.id}/toggle-ai`)));
-      toast.success(`IA reativada! ${blocked.length} conversa(s) desbloqueada(s)`);
-    } catch {
-      toast.error('Erro ao reativar IA');
-    }
-  };
 
   const save = async () => {
     setSaving(true);
@@ -126,7 +97,6 @@ export default function SettingsPage() {
   const tabs = [
     { key: 'ai', label: 'Inteligência Artificial', icon: Bot },
     { key: 'company', label: 'Dados da Empresa', icon: Building2 },
-    { key: 'integrations', label: 'Integrações', icon: Link2 },
   ] as const;
 
   return (
@@ -305,57 +275,13 @@ export default function SettingsPage() {
         )}
 
 
-        {activeTab === 'integrations' && (
-          <>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">URL da Evolution API</label>
-              <input
-                value={settings.evolutionApiUrl}
-                onChange={(e) => update('evolutionApiUrl', e.target.value)}
-                placeholder="https://evolution-api-production-xxxx.up.railway.app"
-                className="input-dark w-full rounded-lg px-4 py-2.5 text-sm font-mono"
-              />
-              <p className="text-xs text-gray-500 mt-1">URL base da Evolution API (sem barra no final)</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Chave da Evolution API</label>
-              <input
-                type="password"
-                value={settings.evolutionApiKey}
-                onChange={(e) => update('evolutionApiKey', e.target.value)}
-                placeholder="Deixe em branco para usar a chave padrão do servidor"
-                className="input-dark w-full rounded-lg px-4 py-2.5 text-sm font-mono"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Deixe em branco para usar a chave definida nas variáveis de ambiente do servidor
-              </p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Chave da OpenAI</label>
-              <input
-                type="password"
-                value={settings.openaiKey}
-                onChange={(e) => update('openaiKey', e.target.value)}
-                placeholder="sk-... (deixe em branco para usar a chave do servidor)"
-                className="input-dark w-full rounded-lg px-4 py-2.5 text-sm font-mono"
-              />
-            </div>
-          </>
-        )}
-
-        <div className="pt-4 border-t border-[#2a2a2a] flex items-center gap-4">
+        <div className="pt-4 border-t border-[#2a2a2a]">
           <button
             onClick={save}
             disabled={saving}
             className="btn-wine px-8 py-3 rounded-lg font-medium text-sm disabled:opacity-50"
           >
             {saving ? 'Salvando...' : 'Salvar Configurações'}
-          </button>
-          <button
-            onClick={reactivateAI}
-            className="px-6 py-3 rounded-lg font-medium text-sm bg-[#1a1a1a] text-gray-400 hover:bg-[#2a2a2a] transition-all"
-          >
-            Reativar IA
           </button>
         </div>
       </div>
