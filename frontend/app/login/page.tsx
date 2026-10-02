@@ -37,9 +37,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 gradient-wine rounded-xl flex items-center justify-center font-bold text-lg glow-wine-sm">
-              CN
-            </div>
+            <Image src="/chatnex-icon.png" alt="ChatNex" width={40} height={40} className="rounded-xl" />
             <span className="text-2xl font-bold">Chat<span className="text-gradient">Nex</span></span>
           </Link>
           <h1 className="text-3xl font-bold mb-2">Bem-vindo de volta</h1>

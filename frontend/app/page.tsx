@@ -11,9 +11,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 bg-[#0D0D0D]/90 backdrop-blur-lg border-b border-[#1a1a1a]">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg gradient-wine flex items-center justify-center text-sm font-bold">
-              CN
-            </div>
+            <Image src="/chatnex-icon.png" alt="ChatNex" width={32} height={32} className="rounded-lg" />
             <span className="text-xl font-bold">Chat<span className="text-gradient">Nex</span></span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-gray-400">
@@ -628,7 +626,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded gradient-wine flex items-center justify-center text-xs font-bold">CN</div>
+              <Image src="/chatnex-icon.png" alt="ChatNex" width={28} height={28} className="rounded" />
               <span className="font-bold text-lg">ChatNex</span>
             </div>
             <div className="flex gap-6 text-sm text-gray-500">

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { io, Socket } from 'socket.io-client';
 import { LayoutDashboard, Smartphone, MessageSquare, Headphones, Settings } from 'lucide-react';
@@ -77,9 +78,7 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="p-6 border-b border-[#1a1a1a]">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 gradient-wine rounded-lg flex items-center justify-center font-bold glow-wine-sm">
-            CN
-          </div>
+          <Image src="/chatnex-icon.png" alt="ChatNex" width={36} height={36} className="rounded-lg" />
           <div>
             <p className="font-bold text-base">Chat<span className="text-gradient">Nex</span></p>
           </div>

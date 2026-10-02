@@ -10,7 +10,10 @@ export const metadata: Metadata = {
   title: 'ChatNex — Atendimento com IA para WhatsApp',
   description:
     'Plataforma SaaS de atendimento automático via WhatsApp com inteligência artificial. Por Nodex.',
-  icons: { icon: '/favicon.ico' },
+  icons: {
+    icon: '/chatnex-icon.png',
+    apple: '/chatnex-icon.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
