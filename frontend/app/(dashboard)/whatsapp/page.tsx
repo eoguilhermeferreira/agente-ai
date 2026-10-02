@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { Smartphone, CheckCircle, Camera, Link2, Bot, Zap, Eye, AlertTriangle } from 'lucide-react';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 
@@ -173,7 +174,7 @@ export default function WhatsAppPage() {
         <div className="card-glass rounded-xl p-6">
           {evolutionError && (
             <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-sm text-red-400">
-              <p className="font-medium mb-1">⚠️ Erro na Evolution API</p>
+              <p className="font-medium mb-1 flex items-center gap-2"><AlertTriangle size={15} /> Erro na Evolution API</p>
               <p>{evolutionError}</p>
               <a href="/settings" className="underline text-red-300 mt-1 inline-block">
                 Ir para Configurações → Integrações
@@ -194,7 +195,7 @@ export default function WhatsAppPage() {
           {(!instance || status === 'DISCONNECTED') && (
             <div className="text-center py-8">
               <div className="w-20 h-20 bg-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-4xl">📱</span>
+                <Smartphone size={38} className="text-gray-500" strokeWidth={1.5} />
               </div>
               <h3 className="font-semibold mb-2">
                 {status === 'DISCONNECTED' ? 'WhatsApp desconectado' : 'Nenhuma instância configurada'}
@@ -221,7 +222,7 @@ export default function WhatsAppPage() {
           {instance && status === 'CONNECTED' && (
             <div className="text-center py-6">
               <div className="w-20 h-20 bg-green-400/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-4xl">✅</span>
+                <CheckCircle size={38} className="text-green-400" strokeWidth={1.5} />
               </div>
               <h3 className="font-semibold text-green-400 mb-2">WhatsApp Conectado!</h3>
               <p className="text-gray-400 text-sm mb-2">
@@ -251,7 +252,7 @@ export default function WhatsAppPage() {
               {!qrCode && !fetchingQr ? (
                 <div className="text-center py-6">
                   <div className="w-16 h-16 bg-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-3xl">📷</span>
+                    <Camera size={30} className="text-gray-500" strokeWidth={1.5} />
                   </div>
                   <p className="text-gray-400 text-sm mb-4">Clique no botão para gerar o QR Code</p>
                   <button
@@ -305,13 +306,13 @@ export default function WhatsAppPage() {
           <h3 className="font-semibold mb-4">Como funciona?</h3>
           <div className="space-y-3 text-sm text-gray-400">
             {[
-              { icon: '🔗', text: 'Sua conta WhatsApp é conectada via Evolution API' },
-              { icon: '🤖', text: 'Mensagens recebidas são processadas pela IA (GPT-4o)' },
-              { icon: '⚡', text: 'Respostas automáticas enviadas em segundos' },
-              { icon: '👁️', text: 'Você pode acompanhar todas as conversas em tempo real' },
+              { Icon: Link2, text: 'Sua conta WhatsApp é conectada via Evolution API' },
+              { Icon: Bot, text: 'Mensagens recebidas são processadas pela IA (GPT-4o)' },
+              { Icon: Zap, text: 'Respostas automáticas enviadas em segundos' },
+              { Icon: Eye, text: 'Você pode acompanhar todas as conversas em tempo real' },
             ].map((item) => (
-              <div key={item.icon} className="flex items-start gap-3">
-                <span className="text-lg flex-shrink-0">{item.icon}</span>
+              <div key={item.text} className="flex items-start gap-3">
+                <item.Icon size={18} className="text-[#A61B4D] flex-shrink-0 mt-0.5" strokeWidth={1.75} />
                 <p>{item.text}</p>
               </div>
             ))}

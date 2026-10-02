@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { MessageSquare, FolderOpen, Mail, BarChart2, CheckCircle, Smartphone } from 'lucide-react';
 import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { DashboardStats, Conversation } from '@/types';
@@ -62,7 +63,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold">
-          Olá, {user?.name?.split(' ')[0]} 👋
+          Olá, {user?.name?.split(' ')[0]}
         </h1>
         <p className="text-gray-400 mt-1">Bem-vindo ao painel da {company?.name}</p>
       </div>
@@ -70,14 +71,14 @@ export default function DashboardPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Total de Conversas', value: data?.stats.totalConversations ?? 0, icon: '💬' },
-          { label: 'Conversas Abertas', value: data?.stats.openConversations ?? 0, icon: '📂' },
-          { label: 'Mensagens Hoje', value: data?.stats.todayMessages ?? 0, icon: '📨' },
-          { label: 'Total de Mensagens', value: data?.stats.totalMessages ?? 0, icon: '📊' },
+          { label: 'Total de Conversas', value: data?.stats.totalConversations ?? 0, Icon: MessageSquare },
+          { label: 'Conversas Abertas', value: data?.stats.openConversations ?? 0, Icon: FolderOpen },
+          { label: 'Mensagens Hoje', value: data?.stats.todayMessages ?? 0, Icon: Mail },
+          { label: 'Total de Mensagens', value: data?.stats.totalMessages ?? 0, Icon: BarChart2 },
         ].map((stat) => (
           <div key={stat.label} className="card-glass rounded-xl p-5">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-2xl">{stat.icon}</span>
+              <stat.Icon size={22} className="text-[#A61B4D]" strokeWidth={1.75} />
             </div>
             <p className="text-3xl font-bold">{stat.value.toLocaleString('pt-BR')}</p>
             <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
@@ -111,7 +112,7 @@ export default function DashboardPage() {
           ) : data?.whatsapp.connected ? (
             <div className="flex flex-col items-center gap-4 py-4">
               <div className="w-16 h-16 bg-green-400/10 rounded-full flex items-center justify-center">
-                <span className="text-3xl">✅</span>
+                <CheckCircle size={32} className="text-green-400" strokeWidth={1.5} />
               </div>
               <p className="text-green-400 font-medium">WhatsApp conectado e funcionando</p>
               <p className="text-xs text-gray-500">A IA está respondendo automaticamente</p>
@@ -119,7 +120,7 @@ export default function DashboardPage() {
           ) : (
             <div className="flex flex-col items-center gap-4 py-4">
               <div className="w-16 h-16 bg-[#A61B4D]/10 rounded-full flex items-center justify-center">
-                <span className="text-3xl">📱</span>
+                <Smartphone size={32} className="text-[#A61B4D]" strokeWidth={1.5} />
               </div>
               <p className="text-gray-400 text-sm">WhatsApp não conectado</p>
               <Link

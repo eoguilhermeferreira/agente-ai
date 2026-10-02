@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { io, Socket } from 'socket.io-client';
+import { MessageSquare, Bot } from 'lucide-react';
 import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Conversation, Message } from '@/types';
@@ -250,7 +251,7 @@ function ChatContent() {
             <div className="p-4 text-center text-gray-500 text-sm">Carregando...</div>
           ) : conversations.length === 0 ? (
             <div className="p-6 text-center">
-              <p className="text-4xl mb-3">💬</p>
+              <MessageSquare size={36} className="text-gray-600 mx-auto mb-3" strokeWidth={1.5} />
               <p className="text-sm text-gray-400">Nenhuma conversa ainda</p>
               <p className="text-xs text-gray-600 mt-1">Conecte o WhatsApp para começar</p>
             </div>
@@ -290,7 +291,7 @@ function ChatContent() {
         {!selected ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <p className="text-5xl mb-4">💬</p>
+              <MessageSquare size={48} className="text-gray-700 mx-auto mb-4" strokeWidth={1.25} />
               <h3 className="font-semibold mb-2">Selecione uma conversa</h3>
               <p className="text-gray-400 text-sm">Escolha uma conversa na lista ao lado</p>
             </div>
@@ -320,7 +321,7 @@ function ChatContent() {
                     : 'bg-[#1a1a1a] text-gray-500 hover:bg-[#2a2a2a]'
                 }`}
               >
-                🤖 IA {selected.aiEnabled ? 'Ativa' : 'Inativa'}
+                <Bot size={13} strokeWidth={1.75} /> IA {selected.aiEnabled ? 'Ativa' : 'Inativa'}
               </button>
             </div>
 

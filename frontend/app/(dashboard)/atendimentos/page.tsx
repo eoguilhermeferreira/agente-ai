@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { io, Socket } from 'socket.io-client';
+import { CheckCircle } from 'lucide-react';
 import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Conversation } from '@/types';
@@ -148,7 +149,7 @@ export default function AtendimentosPage() {
       ) : conversations.length === 0 ? (
         <div className="card-glass rounded-xl p-16 flex flex-col items-center justify-center text-center">
           <div className="w-16 h-16 bg-green-400/10 rounded-full flex items-center justify-center mb-4">
-            <span className="text-3xl">✅</span>
+            <CheckCircle size={30} className="text-green-400" strokeWidth={1.5} />
           </div>
           <p className="text-lg font-medium text-green-400">Nenhum atendimento pendente</p>
           <p className="text-sm text-gray-500 mt-2">Todos os clientes estão sendo atendidos pela IA</p>
