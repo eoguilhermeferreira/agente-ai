@@ -2,6 +2,7 @@ const prisma = require('../config/prisma');
 const aiService = require('../services/aiService');
 const evolutionService = require('../services/evolutionService');
 const { callExternalWebhook } = require('../services/externalWebhookService');
+const { sendPushToCompany } = require('../routes/push');
 
 // Debounce map: remoteJid -> { timer, contents, conversationId, instanceName, settings, clientName, companyId }
 const pendingAI = new Map();
@@ -177,14 +178,21 @@ const sendAIResponse = async ({ conversationId, instanceName, settings, remoteJi
         where: { id: conversationId },
         data: { status: 'PENDING', aiEnabled: false },
       });
+      const humanNeededPayload = {
+        conversationId,
+        clientName,
+        clientPhone: remoteJid.replace('@s.whatsapp.net', ''),
+        lastMessage: aiResponse,
+      };
       if (global.io) {
-        global.io.to(`company-${companyId}`).emit('human-needed', {
-          conversationId,
-          clientName,
-          clientPhone: remoteJid.replace('@s.whatsapp.net', ''),
-          lastMessage: aiResponse,
-        });
+        global.io.to(`company-${companyId}`).emit('human-needed', humanNeededPayload);
       }
+      sendPushToCompany(companyId, {
+        title: '🚨 Atendimento Humano Necessário!',
+        body: `${clientName || remoteJid.replace('@s.whatsapp.net', '')} precisa de atendimento humano agora.`,
+        url: '/atendimentos',
+        conversationId,
+      });
       // Notify pousada system that human handoff is needed
       callExternalWebhook({
         settings,

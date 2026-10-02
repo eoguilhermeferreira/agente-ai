@@ -16,6 +16,7 @@ const settingsRoutes = require('./routes/settings');
 const webhookRoutes = require('./routes/webhook');
 const dashboardRoutes = require('./routes/dashboard');
 const integrationsRoutes = require('./routes/integrations');
+const pushRoutes = require('./routes/push');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -71,6 +72,7 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/webhook', webhookRoutes);
 app.use('/api/integrations', integrationsRoutes);
+app.use('/api/push', pushRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'ChatNex API', version: '1.0.0' });
@@ -110,6 +112,13 @@ server.listen(PORT, async () => {
     `ALTER TABLE "Instance" ADD COLUMN IF NOT EXISTS "clientName" VARCHAR(100)`,
     `ALTER TABLE "settings" ADD COLUMN IF NOT EXISTS "externalWebhookUrl" TEXT`,
     `ALTER TABLE "settings" ADD COLUMN IF NOT EXISTS "externalWebhookKey" TEXT`,
+    `CREATE TABLE IF NOT EXISTS push_subscriptions (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      company_id VARCHAR(100) NOT NULL,
+      endpoint TEXT UNIQUE NOT NULL,
+      subscription JSONB NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW()
+    )`,
   ];
 
   // Retry patches until DB connections are available (Evolution API may hold many on startup)

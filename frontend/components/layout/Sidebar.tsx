@@ -8,6 +8,31 @@ import { io, Socket } from 'socket.io-client';
 import { LayoutDashboard, Smartphone, MessageSquare, Headphones, Settings } from 'lucide-react';
 import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
+
+function playAlertSound() {
+  try {
+    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const ctx = new AC();
+    const pattern = [880, 1100, 880, 1100, 880, 1320, 880];
+    let t = ctx.currentTime;
+    pattern.forEach((freq) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sawtooth';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.9, t + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+      osc.start(t);
+      osc.stop(t + 0.22);
+      t += 0.26;
+    });
+    setTimeout(() => ctx.close(), 3000);
+  } catch {}
+}
 
 const staticNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -22,6 +47,8 @@ export default function Sidebar() {
   const { user, company, logout } = useAuth();
   const [pendingCount, setPendingCount] = useState(0);
   const socketRef = useRef<Socket | null>(null);
+
+  usePushNotifications();
 
   useEffect(() => {
     const fetchPending = async () => {
@@ -57,8 +84,18 @@ export default function Sidebar() {
           socket.emit('join-company', company.id);
         });
 
-        socket.on('human-needed', () => {
+        socket.on('human-needed', (data: { clientName?: string; clientPhone?: string }) => {
           setPendingCount(prev => prev + 1);
+          playAlertSound();
+          if (Notification.permission === 'granted') {
+            const name = data?.clientName || data?.clientPhone || 'Cliente';
+            new Notification('🚨 Atendimento Humano Necessário!', {
+              body: `${name} precisa de atendimento humano agora.`,
+              icon: '/chatnex-icon.png',
+              requireInteraction: true,
+              tag: 'human-needed',
+            });
+          }
         });
 
         socket.on('human-resolved', () => {
