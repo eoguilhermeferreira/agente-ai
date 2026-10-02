@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -78,18 +79,18 @@ export default function LoginPage() {
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
 
-          <p className="text-center text-sm text-gray-400">
-            Não tem conta?{' '}
-            <Link href="/register" className="text-[#A61B4D] hover:text-[#c42460] font-medium">
-              Criar conta grátis
-            </Link>
-          </p>
         </form>
 
-        <p className="text-center text-xs text-gray-600 mt-6">
-          ChatNex por{' '}
-          <span className="text-[#A61B4D]">Nodex</span> — Agência de Marketing Digital
-        </p>
+        <div className="flex flex-col items-center gap-2 mt-6">
+          <p className="text-xs text-gray-600">Desenvolvido por</p>
+          <Image
+            src="/nodex-logo.png"
+            alt="Nodex — Agência de Marketing Digital"
+            width={140}
+            height={40}
+            className="opacity-70 hover:opacity-100 transition-opacity"
+          />
+        </div>
       </div>
     </div>
   );
