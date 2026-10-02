@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Bot, Building2 } from 'lucide-react';
+import { Bot, Building2, LogOut, User } from 'lucide-react';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface VisibleSettings {
   aiEnabled: boolean;
@@ -21,6 +22,7 @@ interface VisibleSettings {
 }
 
 export default function SettingsPage() {
+  const { user, company, logout } = useAuth();
   const [settings, setSettings] = useState<VisibleSettings>({
     aiEnabled: true,
     autoReply: true,
@@ -284,6 +286,35 @@ export default function SettingsPage() {
             {saving ? 'Salvando...' : 'Salvar Configurações'}
           </button>
         </div>
+      </div>
+
+      {/* Conta — só aparece no mobile, desktop já tem na sidebar */}
+      <div className="md:hidden mt-6 card-glass rounded-xl p-5 space-y-4">
+        <h3 className="text-sm font-semibold text-gray-300 flex items-center gap-2">
+          <User size={15} strokeWidth={1.75} />
+          Minha Conta
+        </h3>
+        <div className="flex items-center gap-3 p-3 bg-[#141414] rounded-lg">
+          <div className="w-10 h-10 gradient-wine rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+            {user?.name?.[0]?.toUpperCase()}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">{user?.name}</p>
+            <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+            {company && (
+              <span className="inline-block text-xs bg-[#A61B4D]/20 text-[#A61B4D] px-2 py-0.5 rounded-full mt-1">
+                {company.plan}
+              </span>
+            )}
+          </div>
+        </div>
+        <button
+          onClick={logout}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-[#1a1a1a] text-gray-400 hover:bg-red-900/20 hover:text-red-400 transition-all text-sm font-medium"
+        >
+          <LogOut size={15} strokeWidth={1.75} />
+          Sair da conta
+        </button>
       </div>
     </div>
   );
