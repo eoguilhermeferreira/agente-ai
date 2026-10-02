@@ -240,15 +240,16 @@ function ChatContent() {
   };
 
   return (
-    <div className="h-[calc(100dvh-64px)] md:h-screen flex overflow-hidden w-full max-w-full">
-      {/* Conversations list — hidden on mobile when chat is open */}
-      <div className={`${mobileShowChat ? 'hidden' : 'flex'} md:flex w-full md:w-80 border-r border-[#1a1a1a] flex-col bg-[#0D0D0D] flex-shrink-0`}>
-        <div className="p-4 border-b border-[#1a1a1a]">
+    <div className="flex h-[100dvh] md:h-screen w-full overflow-hidden">
+      {/* Conversations list — full screen on mobile when visible */}
+      <div className={`${mobileShowChat ? 'hidden' : 'flex'} md:flex w-full md:w-80 flex-shrink-0 flex-col border-r border-[#1a1a1a] bg-[#0D0D0D]`}>
+        {/* list header — fixed */}
+        <div className="flex-shrink-0 p-4 border-b border-[#1a1a1a]">
           <h2 className="font-semibold text-lg">Chat ao Vivo</h2>
           <p className="text-xs text-gray-500 mt-1">{conversations.length} conversa(s)</p>
         </div>
-
-        <div className="flex-1 overflow-y-auto">
+        {/* list body — scrolls */}
+        <div className="flex-1 min-h-0 overflow-y-auto">
           {loadingConvs ? (
             <div className="p-4 text-center text-gray-500 text-sm">Carregando...</div>
           ) : conversations.length === 0 ? (
@@ -271,9 +272,7 @@ function ChatContent() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium truncate">
-                      {conv.clientName || conv.clientPhone}
-                    </p>
+                    <p className="text-sm font-medium truncate">{conv.clientName || conv.clientPhone}</p>
                     {conv.unreadCount > 0 && (
                       <span className="ml-1 w-5 h-5 bg-[#A61B4D] rounded-full text-xs flex items-center justify-center flex-shrink-0">
                         {conv.unreadCount}
@@ -288,8 +287,8 @@ function ChatContent() {
         </div>
       </div>
 
-      {/* Chat area — hidden on mobile when list is shown */}
-      <div className={`${!mobileShowChat ? 'hidden' : 'flex'} md:flex flex-1 flex-col`}>
+      {/* Chat area — full screen on mobile when open */}
+      <div className={`${!mobileShowChat ? 'hidden' : 'flex'} md:flex flex-1 min-w-0 flex-col`}>
         {!selected ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
@@ -300,8 +299,8 @@ function ChatContent() {
           </div>
         ) : (
           <>
-            {/* Chat header */}
-            <div className="px-3 py-3 border-b border-[#1a1a1a] flex items-center gap-2 bg-[#0D0D0D] min-w-0">
+            {/* Header — always fixed at top, never scrolls */}
+            <div className="flex-shrink-0 px-3 py-3 border-b border-[#1a1a1a] flex items-center gap-2 bg-[#0D0D0D]">
               <button
                 onClick={() => setMobileShowChat(false)}
                 className="md:hidden p-1 text-gray-400 hover:text-white flex-shrink-0"
@@ -312,7 +311,7 @@ function ChatContent() {
                 {(selected.clientName || selected.clientPhone)?.[0]?.toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium truncate text-sm">{selected.clientName || selected.clientPhone}</p>
+                <p className="font-medium truncate text-sm leading-tight">{selected.clientName || selected.clientPhone}</p>
                 {isTyping ? (
                   <p className="text-xs text-[#A61B4D] animate-pulse">IA digitando...</p>
                 ) : (
@@ -323,18 +322,17 @@ function ChatContent() {
                 onClick={toggleAI}
                 className={`flex-shrink-0 flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   selected.aiEnabled
-                    ? 'bg-[#A61B4D]/20 text-[#A61B4D] hover:bg-[#A61B4D]/30'
-                    : 'bg-[#1a1a1a] text-gray-500 hover:bg-[#2a2a2a]'
+                    ? 'bg-[#A61B4D]/20 text-[#A61B4D]'
+                    : 'bg-[#1a1a1a] text-gray-500'
                 }`}
               >
                 <Bot size={13} strokeWidth={1.75} />
-                <span className="hidden sm:inline">IA {selected.aiEnabled ? 'Ativa' : 'Inativa'}</span>
-                <span className="sm:hidden">{selected.aiEnabled ? 'ON' : 'OFF'}</span>
+                <span>{selected.aiEnabled ? 'ON' : 'OFF'}</span>
               </button>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-3 bg-[#090909]">
+            {/* Messages — only this area scrolls */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 bg-[#090909]">
               {loadingMsgs ? (
                 <div className="flex items-center justify-center h-full">
                   <p className="text-gray-500 text-sm">Carregando mensagens...</p>
@@ -345,18 +343,13 @@ function ChatContent() {
                 </div>
               ) : (
                 messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`flex ${msg.fromMe ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`max-w-[70%] px-4 py-2.5 rounded-2xl text-sm ${
-                        msg.fromMe
-                          ? 'gradient-wine rounded-br-sm text-white'
-                          : 'bg-[#1a1a1a] rounded-bl-sm text-gray-100'
-                      }`}
-                    >
-                      <p className="leading-relaxed">{msg.content}</p>
+                  <div key={msg.id} className={`flex ${msg.fromMe ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${
+                      msg.fromMe
+                        ? 'gradient-wine rounded-br-sm text-white'
+                        : 'bg-[#1a1a1a] rounded-bl-sm text-gray-100'
+                    }`}>
+                      <p className="leading-relaxed break-words">{msg.content}</p>
                       <p className={`text-xs mt-1 ${msg.fromMe ? 'text-white/60' : 'text-gray-500'} text-right`}>
                         {formatTime(msg.createdAt)}
                       </p>
@@ -378,8 +371,8 @@ function ChatContent() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
-            <form onSubmit={sendMessage} className="px-4 py-4 border-t border-[#1a1a1a] bg-[#0D0D0D] flex gap-3">
+            {/* Input — always fixed at bottom, never scrolls */}
+            <form onSubmit={sendMessage} className="flex-shrink-0 px-3 py-3 border-t border-[#1a1a1a] bg-[#0D0D0D] flex gap-2">
               <input
                 type="text"
                 value={newMsg}
@@ -391,7 +384,7 @@ function ChatContent() {
               <button
                 type="submit"
                 disabled={!newMsg.trim() || sending}
-                className="btn-wine px-5 py-3 rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-wine px-4 py-3 rounded-xl text-sm font-medium disabled:opacity-50 flex-shrink-0"
               >
                 {sending ? '...' : '→'}
               </button>
